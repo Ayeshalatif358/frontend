@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./petals.css";
 
 const Petals = () => {
   const [petals, setPetals] = useState([]);
@@ -12,12 +11,11 @@ const Petals = () => {
       delay: Math.random() * 5,
       size: 10 + Math.random() * 15,
     }));
-
     setPetals(generated);
   }, []);
 
   return (
-    <div className="petal-container">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {petals.map((p) => (
         <span
           key={p.id}
