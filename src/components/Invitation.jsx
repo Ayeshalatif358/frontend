@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Petals from "./Petals";
 
-const API_URL = "http://localhost:8000/api/blessings/";
+const API_URL = "https://ayeshalatif.pythonanywhere.com/api/blessings/";
 
 const Invitation = () => {
   const [opened, setOpened] = useState(false);
