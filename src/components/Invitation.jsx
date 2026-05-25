@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Petals from "./Petals";
 import { supabase } from './supabaseClient'
-const API_URL = "http://localhost:8000/api/blessings/";
 
 const Invitation = () => {
   const [opened, setOpened] = useState(false);
@@ -37,29 +36,35 @@ const Invitation = () => {
   const senderSide =
     new URLSearchParams(window.location.search).get("side") || "both";
 
+  // ── BLESSINGS: fetch + real-time subscription ──
   useEffect(() => {
-  // Initial fetch
-  supabase
-    .from('blessings')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .then(({ data }) => { if (data) setBlessings(data) })
+    supabase
+      .from('blessings')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Supabase fetch error:', error.message);
+          return;
+        }
+        if (Array.isArray(data)) setBlessings(data);
+      });
 
-  // Real-time subscription — new blessing appears for ALL users instantly
-  const channel = supabase
-    .channel('blessings-channel')
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'blessings'
-    }, (payload) => {
-      setBlessings(prev => [payload.new, ...prev])
-    })
-    .subscribe()
+    const channel = supabase
+      .channel('blessings-channel')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'blessings'
+      }, (payload) => {
+        setBlessings(prev => [payload.new, ...prev]);
+      })
+      .subscribe();
 
-  return () => supabase.removeChannel(channel)
-}, [])
+    return () => supabase.removeChannel(channel);
+  }, []);
 
+  // ── COUNTDOWN ──
   useEffect(() => {
     if (!opened && !invitationVisible) return;
     const eventDate =
@@ -83,6 +88,7 @@ const Invitation = () => {
     return () => clearInterval(timer);
   }, [opened, invitationVisible, senderSide]);
 
+  // ── SCROLL REVEAL ──
   useEffect(() => {
     if (!invitationVisible) return;
     const revealSections = () => {
@@ -114,22 +120,24 @@ const Invitation = () => {
   };
 
   const addBlessing = async () => {
-  if (!name.trim() || !message.trim()) {
-    alert('Please fill in both your name and a message.')
-    return
-  }
-  const { error } = await supabase
-    .from('blessings')
-    .insert([{ name: name.trim(), message: message.trim() }])
+    if (!name.trim() || !message.trim()) {
+      alert('Please fill in both your name and a message.');
+      return;
+    }
+    const { error } = await supabase
+      .from('blessings')
+      .insert([{ name: name.trim(), message: message.trim() }]);
 
-  if (error) {
-    alert('Could not post blessing. Please try again.')
-    return
-  }
-  setName('')
-  setMessage('')
-  // No need to manually update state — real-time subscription handles it
-};
+    if (error) {
+      alert('Could not post blessing. Please try again.');
+      console.error('Supabase insert error:', error.message);
+      return;
+    }
+    setName('');
+    setMessage('');
+    // Real-time subscription handles updating the list for everyone
+  };
+
   return (
     <>
       <Petals />
@@ -502,13 +510,13 @@ const Invitation = () => {
           <p className="italic text-sm mt-1">Lahore, Pakistan</p>
           <div className="flex flex-col sm:flex-row gap-3 mt-5 justify-center">
             <a
-              href="href="https://www.google.com/maps/search/?api=1&query=Hotel+Name+Gulberg+Lahore+Pakistan""
+              href="https://www.google.com/maps/search/?api=1&query=Hotel+Name+Gulberg+Lahore+Pakistan"
               target="_blank"
               rel="noreferrer"
               className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
               style={{ background: "#5d1916" }}
             >
-              📍 OPEN IN &nbsp;&nbsp;&nbsp;&nbsp;GOOGLE <br />&nbsp;&nbsp;MAPS
+              📍 OPEN IN GOOGLE MAPS
             </a>
             <a
               href={
@@ -519,7 +527,6 @@ const Invitation = () => {
               target="_blank"
               rel="noreferrer"
               className="border border-[#5d1916] text-[#5d1916] hover:bg-[#5d1916] hover:text-white font-cinzel transition duration-300 px-4 py-2 inline-block"
-              
             >
               📅 ADD TO GOOGLE CALENDAR
             </a>
@@ -607,10 +614,10 @@ const Invitation = () => {
             className="max-w-lg mx-auto mb-8 max-h-72 overflow-y-auto p-3 bg-white rounded-xl border"
             style={{ borderColor: "#f8ecea" }}
           >
-            {blessings.length === 0 ? (
+            {Array.isArray(blessings) && blessings.length === 0 ? (
               <p>Be the first to leave a blessing...</p>
             ) : (
-              blessings.map((b) => (
+              Array.isArray(blessings) && blessings.map((b) => (
                 <div
                   key={b.id}
                   className="blessing-entry text-left mb-4 pb-3 border-b"
