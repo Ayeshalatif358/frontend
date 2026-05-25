@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Petals from "./Petals";
-import { supabase } from './supabaseClient'
+import { supabase } from '../supabaseClient'
 
 const Invitation = () => {
   const [opened, setOpened] = useState(false);
@@ -614,10 +614,10 @@ const Invitation = () => {
             className="max-w-lg mx-auto mb-8 max-h-72 overflow-y-auto p-3 bg-white rounded-xl border"
             style={{ borderColor: "#f8ecea" }}
           >
-            {Array.isArray(blessings) && blessings.length === 0 ? (
-              <p>Be the first to leave a blessing...</p>
+            {!Array.isArray(blessings) || blessings.length === 0 ? (
+            <p>Be the first to leave a blessing...</p>
             ) : (
-              Array.isArray(blessings) && blessings.map((b) => (
+            blessings.map((b) => (
                 <div
                   key={b.id}
                   className="blessing-entry text-left mb-4 pb-3 border-b"
