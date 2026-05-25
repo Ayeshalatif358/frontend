@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Petals from "./Petals";
-
-const API_URL = "https://ayeshalatif.pythonanywhere.com/api/";
+import { supabase } from './supabaseClient'
+const API_URL = "http://localhost:8000/api/blessings/";
 
 const Invitation = () => {
   const [opened, setOpened] = useState(false);
@@ -38,14 +38,27 @@ const Invitation = () => {
     new URLSearchParams(window.location.search).get("side") || "both";
 
   useEffect(() => {
-    fetch(API_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch blessings");
-        return res.json();
-      })
-      .then((data) => setBlessings(data))
-      .catch((err) => console.error("Error loading blessings:", err.message));
-  }, []);
+  // Initial fetch
+  supabase
+    .from('blessings')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .then(({ data }) => { if (data) setBlessings(data) })
+
+  // Real-time subscription — new blessing appears for ALL users instantly
+  const channel = supabase
+    .channel('blessings-channel')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'blessings'
+    }, (payload) => {
+      setBlessings(prev => [payload.new, ...prev])
+    })
+    .subscribe()
+
+  return () => supabase.removeChannel(channel)
+}, [])
 
   useEffect(() => {
     if (!opened && !invitationVisible) return;
@@ -101,26 +114,22 @@ const Invitation = () => {
   };
 
   const addBlessing = async () => {
-    if (!name.trim() || !message.trim()) {
-      alert("Please fill in both your name and a message.");
-      return;
-    }
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ name: name.trim(), message: message.trim() }),
-      });
-      let data = await res.json();
-      if (!res.ok) throw new Error("Server error");
-      setBlessings((prev) => [data, ...prev]);
-      setName("");
-      setMessage("");
-    } catch (err) {
-      alert(`Could not post blessing: ${err.message}`);
-    }
-  };
+  if (!name.trim() || !message.trim()) {
+    alert('Please fill in both your name and a message.')
+    return
+  }
+  const { error } = await supabase
+    .from('blessings')
+    .insert([{ name: name.trim(), message: message.trim() }])
 
+  if (error) {
+    alert('Could not post blessing. Please try again.')
+    return
+  }
+  setName('')
+  setMessage('')
+  // No need to manually update state — real-time subscription handles it
+};
   return (
     <>
       <Petals />
@@ -493,7 +502,7 @@ const Invitation = () => {
           <p className="italic text-sm mt-1">Lahore, Pakistan</p>
           <div className="flex flex-col sm:flex-row gap-3 mt-5 justify-center">
             <a
-              href="https://www.google.com/maps/search/?api=1&query=Your+Address+Here"
+              href="href="https://www.google.com/maps/search/?api=1&query=Hotel+Name+Gulberg+Lahore+Pakistan""
               target="_blank"
               rel="noreferrer"
               className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
