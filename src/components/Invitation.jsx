@@ -23,7 +23,7 @@ const translations = {
     engagementTitle: "Engagement Planning",
     engagementCeremony: "Engagement Ceremony",
     engagementTime: "05:00 PM | June 13, 2026",
-    engagementVenue: "Venue: Hotel ...",
+    engagementVenue: "Arshad Marquee",
     protocolTitle: "⚠️ Mandatory Celebration Protocols",
     protocolSubtitle: "Please read carefully to avoid dynamic structural layout errors at the venue",
     protocol1Title: "Punctuality Protocol:",
@@ -282,13 +282,16 @@ const Invitation = () => {
       <Header />
 
       {/* ── LANGUAGE TOGGLE BUTTON ── */}
-      <button
-        onClick={() => setLang(lang === "en" ? "ur" : "en")}
-        className="fixed z-[5000] bottom-6 right-5 px-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg transition-transform hover:scale-105"
-        style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", letterSpacing: "1px" }}
-      >
-        {t.toggleBtn}
-      </button>
+      {/* ── LANGUAGE TOGGLE BUTTON ── */}
+{invitationVisible && (
+  <button
+    onClick={() => setLang(lang === "en" ? "ur" : "en")}
+    className="fixed z-[5000] bottom-6 right-5 px-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg transition-transform hover:scale-105"
+    style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", letterSpacing: "1px" }}
+  >
+    {t.toggleBtn}
+  </button>
+)}
 
       {/* ── ENVELOPE SECTION ── */}
       {!opened && (
