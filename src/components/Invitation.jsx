@@ -129,10 +129,10 @@ const Invitation = () => {
       .insert([{ name: name.trim(), message: message.trim() }]);
 
     if (error) {
-      alert('Could not post blessing. Please try again.');
-      console.error('Supabase insert error:', error.message);
-      return;
-    }
+  console.error('Full error:', JSON.stringify(error));
+  alert('Could not post blessing. Please try again.');
+  return;
+}
     setName('');
     setMessage('');
     // Real-time subscription handles updating the list for everyone
