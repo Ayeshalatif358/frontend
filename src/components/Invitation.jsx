@@ -3,7 +3,165 @@ import Header from "./Header";
 import Petals from "./Petals";
 import { supabase } from '../supabaseClient'
 
+const translations = {
+  en: {
+    inviteText: "We Invite You To Celebrate Love",
+    heroBoth: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
+    heroGroom: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
+    heroBride: "BARAT / CEREMONY • JUNE 13, 2026",
+    ourStoryTitle: "Our Story",
+    ourStoryText: `"A beautiful journey begins with a single step and the blessings of those we love. As two families become one, we celebrate the start of a lifetime of friendship, discovery, and a love that grows deeper with every passing day."`,
+    familiesTitle: "Meet the Families",
+    groomFamilyTitle: "The Groom's Family",
+    groomFamilyTextGroom: "With great joy, we invite you to join us as we welcome our beautiful new family member into our hearts.",
+    groomFamilyTextOther: "Welcoming you all with open hearts and prayers to celebrate this blessed bond.",
+    brideFamilyTitle: "The Bride's Family",
+    brideFamilyTextBride: "With immense love and happiness, we invite our dear guests to witness the beautiful new beginning of our daughter.",
+    brideFamilyTextOther: "Celebrating a beautiful journey of love, values, and a lifetime union of two beautiful families.",
+    countdownTitle: "THE CELEBRATION BEGINS IN",
+    days: "Days", hours: "Hrs", minutes: "Min", seconds: "Sec",
+    engagementTitle: "Engagement Planning",
+    engagementCeremony: "Engagement Ceremony",
+    engagementTime: "05:00 PM | June 13, 2026",
+    engagementVenue: "Venue: Hotel ...",
+    protocolTitle: "⚠️ Mandatory Celebration Protocols",
+    protocolSubtitle: "Please read carefully to avoid dynamic structural layout errors at the venue",
+    protocol1Title: "Punctuality Protocol:",
+    protocol1: `"Yes, it's a Pakistani wedding", but the buffet waits for no one. Arrive late, and you'll be left with empty platters and just the gravy. Don't say we didn't warn you!`,
+    protocol2Title: "Camera Policy:",
+    protocol2: "Feel free to capture our best angles. If you capture an awkward chewing face during dinner, please delete it immediately for security optimization.",
+    protocol3Title: "Mandatory Entry Requirement:",
+    protocol3: "Bringing your warmest smiles, loudest cheers, and abundance of Duas is 100% compulsory.",
+    urduPoem: `"کوتھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
+    urduPoemNote: "(بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)",
+    scheduleTitle: "The Evening's Schedule",
+    schedule: [
+      { time: "06:00 PM — Starting Time", desc: "Receiving our guests and families." },
+      { time: "07:00 PM — Exchange of Rings", desc: "The formal engagement ceremony and prayers (Duas)." },
+      { time: "07:30 PM — Dinner", desc: "A festive meal to celebrate the new bond." },
+    ],
+    parentsTitle: "With the Blessings of",
+    groomParentsTitle: "Groom's Parents",
+    groomParents: "Muhammad Latif & Rehana Latif",
+    brideParentsTitle: "Bride's Parents",
+    brideParents: "Muhammad Mumtaz & Shakeela Mumtaz",
+    messageLoveTitle: "A Message of Love",
+    brideMessage: `"As Iqra's sister, seeing her step into this beautiful new chapter brings so much joy to my heart. With love and excitement, I warmly invite you to be a part of our happiest moments!"`,
+    brideSigner: "— Bride's Sister",
+    groomMessage: `"As Usman's sister, I've seen the joy this new chapter has brought to our home. I make this invitation with love to welcome our new family members. Can't wait to celebrate with you all!"`,
+    groomSigner: "— Ayesha",
+    venueGroomTitle: "Engagement Ceremony",
+    venueBrideTitle: "Wedding Ceremony",
+    venueTime: "05:00 PM | June 13, 2026",
+    venueAddress: "Venue: [House Number/Area Name]",
+    venueCity: "Lahore, Pakistan",
+    mapsBtn: "📍 OPEN IN GOOGLE MAPS",
+    calBtn: "📅 ADD TO GOOGLE CALENDAR",
+    siblingTitle: "The Sibling Squad",
+    siblingSubtitle: "The real masterminds behind the celebration",
+    teamGroom: "— Team Groom —",
+    teamBride: "— Team Bride —",
+    blessingTitle: "Blessing Wall",
+    blessingEmpty: "Be the first to leave a blessing...",
+    namePlaceholder: "Your Name",
+    messagePlaceholder: "Write your Duas...",
+    postBtn: "POST BLESSING",
+    toggleBtn: "🌐 اردو میں پڑھیں",
+  },
+  ur: {
+    inviteText: "ہم آپ کو محبت کی خوشی میں شامل ہونے کی دعوت دیتے ہیں",
+    heroBoth: "منگنی کی تقریب • ۱۳ جون ۲۰۲۶",
+    heroGroom: "منگنی کی تقریب • ۱۳ جون ۲۰۲۶",
+    heroBride: "بارات / نکاح • ۱۳ جون ۲۰۲۶",
+    ourStoryTitle: "ہماری کہانی",
+    ourStoryText: `"ایک خوبصورت سفر ایک قدم سے شروع ہوتا ہے اور اپنوں کی دعاؤں سے۔ جب دو خاندان ایک ہوتے ہیں تو ہم دوستی، محبت اور خوشیوں کے ایک نئے باب کا جشن مناتے ہیں۔"`,
+    familiesTitle: "خاندانوں سے ملیں",
+    groomFamilyTitle: "دولہا کا خاندان",
+    groomFamilyTextGroom: "بڑی خوشی کے ساتھ ہم آپ کو دعوت دیتے ہیں کہ ہمارے ساتھ اس خوبصورت لمحے کا حصہ بنیں۔",
+    groomFamilyTextOther: "کھلے دل اور دعاؤں کے ساتھ آپ سب کا خیرمقدم ہے۔",
+    brideFamilyTitle: "دلہن کا خاندان",
+    brideFamilyTextBride: "بے پناہ محبت اور خوشی کے ساتھ ہم اپنی بیٹی کی نئی شروعات کا جشن منانے کی دعوت دیتے ہیں۔",
+    brideFamilyTextOther: "دو خوبصورت خاندانوں کے اس پاکیزہ رشتے کا جشن منائیں۔",
+    countdownTitle: "تقریب شروع ہونے میں",
+    days: "دن", hours: "گھنٹے", minutes: "منٹ", seconds: "سیکنڈ",
+    engagementTitle: "منگنی کا پروگرام",
+    engagementCeremony: "منگنی کی تقریب",
+    engagementTime: "شام ۵ بجے | ۱۳ جون ۲۰۲۶",
+    engagementVenue: "مقام: ہوٹل ...",
+    protocolTitle: "⚠️ لازمی جشن پروٹوکول",
+    protocolSubtitle: "براہ کرم غور سے پڑھیں تاکہ تقریب میں کوئی تکنیکی خرابی نہ ہو",
+    protocol1Title: "وقت کی پابندی:",
+    protocol1: `"جی ہاں یہ پاکستانی شادی ہے" لیکن بوفے کسی کا انتظار نہیں کرتا۔ دیر سے آئے تو صرف گریوی ملے گی!`,
+    protocol2Title: "کیمرہ پالیسی:",
+    protocol2: "اچھے زاویوں سے تصویریں لیں۔ اگر کوئی کھانا کھاتے وقت عجیب تصویر آئے تو فوری ڈیلیٹ کریں!",
+    protocol3Title: "لازمی شرط:",
+    protocol3: "مسکراہٹ، خوشی اور ڈھیر ساری دعائیں لے کر آنا لازمی ہے۔",
+    urduPoem: `"کوتھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
+    urduPoemNote: "(بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)",
+    scheduleTitle: "شام کا پروگرام",
+    schedule: [
+      { time: "شام ۶ بجے — آغاز", desc: "مہمانوں اور خاندان والوں کا استقبال۔" },
+      { time: "شام ۷ بجے — انگوٹھی کی تبادلہ", desc: "رسمی منگنی کی تقریب اور دعائیں۔" },
+      { time: "شام ساڑھے ۷ بجے — کھانا", desc: "نئے رشتے کی خوشی میں دعوتِ طعام۔" },
+    ],
+    parentsTitle: "بزرگوں کی دعاؤں کے ساتھ",
+    groomParentsTitle: "دولہا کے والدین",
+    groomParents: "محمد لطیف اور رحانہ لطیف",
+    brideParentsTitle: "دلہن کے والدین",
+    brideParents: "محمد ممتاز اور شکیلہ ممتاز",
+    messageLoveTitle: "محبت بھرا پیغام",
+    brideMessage: `"اقرا کی بہن کے طور پر اسے اس خوبصورت نئے سفر میں قدم رکھتے دیکھ کر دل خوشی سے بھر جاتا ہے۔ محبت کے ساتھ آپ سب کو دعوت دیتی ہوں!"`,
+    brideSigner: "— دلہن کی بہن",
+    groomMessage: `"عثمان کی بہن کے طور پر میں نے اس خوشی کو گھر میں محسوس کیا ہے۔ محبت کے ساتھ آپ سب کو دعوت دیتی ہوں۔ آپ سے مل کر خوشی ہوگی!"`,
+    groomSigner: "— عائشہ",
+    venueGroomTitle: "منگنی کی تقریب",
+    venueBrideTitle: "شادی کی تقریب",
+    venueTime: "شام ۵ بجے | ۱۳ جون ۲۰۲۶",
+    venueAddress: "مقام: [گھر نمبر / علاقہ]",
+    venueCity: "لاہور، پاکستان",
+    mapsBtn: "📍 گوگل میپس پر دیکھیں",
+    calBtn: "📅 گوگل کیلنڈر میں شامل کریں",
+    siblingTitle: "بہن بھائیوں کی ٹیم",
+    siblingSubtitle: "تقریب کے اصل منتظمین",
+    teamGroom: "— ٹیم دولہا —",
+    teamBride: "— ٹیم دلہن —",
+    blessingTitle: "دعاؤں کی دیوار",
+    blessingEmpty: "پہلی دعا لکھنے والے آپ بنیں...",
+    namePlaceholder: "آپ کا نام",
+    messagePlaceholder: "اپنی دعا لکھیں...",
+    postBtn: "دعا پوسٹ کریں",
+    toggleBtn: "🌐 Read in English",
+  }
+};
+
+const groomSiblingsEn = [
+  { id: "g1", badge: "Chief Guest 😎", title: "Farhan (QC Inspector)" },
+  { id: "g2", badge: "Chief Wedding Planner 🫠", title: "Numan (Software Engineer)" },
+  { id: "g3", badge: "The Project Manager 🫣", title: "Ayesha (CS Student)" },
+  { id: "g4", badge: "The Drama Queen 🤭", title: "Fatima (ICS Student)" },
+];
+const groomSiblingsUr = [
+  { id: "g1", badge: "مہمانِ خصوصی 😎", title: "فرحان (کوالٹی انسپکٹر)" },
+  { id: "g2", badge: "شادی کے منتظمِ اعلیٰ 🫠", title: "نعمان (سافٹ ویئر انجینئر)" },
+  { id: "g3", badge: "پروجیکٹ مینیجر 🫣", title: "عائشہ (سی ایس طالبہ)" },
+  { id: "g4", badge: "ڈراما کوئین 🤭", title: "فاطمہ (آئی سی ایس طالبہ)" },
+];
+const brideSiblingsEn = [
+  { id: "b1", badge: "The Medical Expert 🤓", title: "Fatima (Medical Student)" },
+  { id: "b2", badge: "The Bride's Guard 💂", title: "Usman (2nd Year)" },
+  { id: "b3", badge: "The Innocent One 😇", title: "Farhan (9th Grade)" },
+];
+const brideSiblingsUr = [
+  { id: "b1", badge: "طبی ماہر 🤓", title: "فاطمہ (میڈیکل طالبہ)" },
+  { id: "b2", badge: "دلہن کی حفاظت 💂", title: "عثمان (دوسرا سال)" },
+  { id: "b3", badge: "معصوم فرشتہ 😇", title: "فرحان (نویں جماعت)" },
+];
+
 const Invitation = () => {
+  const [lang, setLang] = useState("en");
+  const t = translations[lang];
+  const isUrdu = lang === "ur";
+
   const [opened, setOpened] = useState(false);
   const [envelopeOpening, setEnvelopeOpening] = useState(false);
   const [invitationVisible, setInvitationVisible] = useState(false);
@@ -20,43 +178,25 @@ const Invitation = () => {
   const [showIntro, setShowIntro] = useState(false);
   const [hideIntro, setHideIntro] = useState(false);
 
-  const groomSiblings = [
-    { id: "g1", badge: "Chief Guest 😎", title: "Farhan (QC Inspector)" },
-    { id: "g2", badge: "Chief Wedding Planner 🫠", title: "Numan (Software Engineer)" },
-    { id: "g3", badge: "The Project Manager 🫣", title: "Ayesha (CS Student)" },
-    { id: "g4", badge: "The Drama Queen 🤭", title: "Fatima (ICS Student)" },
-  ];
-
-  const brideSiblings = [
-    { id: "b1", badge: "The Medical Expert 🤓", title: "Fatima (Medical Student)" },
-    { id: "b2", badge: "The Bride's Guard 💂", title: "Usman (2nd Year)" },
-    { id: "b3", badge: "The Innocent One 😇", title: "Farhan (9th Grade)" },
-  ];
+  const groomSiblings = isUrdu ? groomSiblingsUr : groomSiblingsEn;
+  const brideSiblings = isUrdu ? brideSiblingsUr : brideSiblingsEn;
 
   const senderSide =
     new URLSearchParams(window.location.search).get("side") || "both";
 
-  // ── BLESSINGS: fetch + real-time subscription ──
   useEffect(() => {
     supabase
       .from('blessings')
       .select('*')
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
-        if (error) {
-          console.error('Supabase fetch error:', error.message);
-          return;
-        }
+        if (error) { console.error('Supabase fetch error:', error.message); return; }
         if (Array.isArray(data)) setBlessings(data);
       });
 
     const channel = supabase
       .channel('blessings-channel')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'blessings'
-      }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'blessings' }, (payload) => {
         setBlessings(prev => [payload.new, ...prev]);
       })
       .subscribe();
@@ -64,7 +204,6 @@ const Invitation = () => {
     return () => supabase.removeChannel(channel);
   }, []);
 
-  // ── COUNTDOWN ──
   useEffect(() => {
     if (!opened && !invitationVisible) return;
     const eventDate =
@@ -77,8 +216,7 @@ const Invitation = () => {
       const distance = eventDate - now;
       if (distance < 0) {
         setDays("0"); setHours("0"); setMinutes("0"); setSeconds("0");
-        clearInterval(timer);
-        return;
+        clearInterval(timer); return;
       }
       setDays(String(Math.floor(distance / (1000 * 60 * 60 * 24))));
       setHours(String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))));
@@ -88,7 +226,6 @@ const Invitation = () => {
     return () => clearInterval(timer);
   }, [opened, invitationVisible, senderSide]);
 
-  // ── SCROLL REVEAL ──
   useEffect(() => {
     if (!invitationVisible) return;
     const revealSections = () => {
@@ -121,7 +258,7 @@ const Invitation = () => {
 
   const addBlessing = async () => {
     if (!name.trim() || !message.trim()) {
-      alert('Please fill in both your name and a message.');
+      alert(isUrdu ? 'براہ کرم نام اور پیغام دونوں لکھیں۔' : 'Please fill in both your name and a message.');
       return;
     }
     const { error } = await supabase
@@ -129,19 +266,29 @@ const Invitation = () => {
       .insert([{ name: name.trim(), message: message.trim() }]);
 
     if (error) {
-  console.error('Full error:', JSON.stringify(error));
-  alert('Could not post blessing. Please try again.');
-  return;
-}
+      console.error('Full error:', JSON.stringify(error));
+      alert(isUrdu ? 'دعا پوسٹ نہیں ہو سکی۔ دوبارہ کوشش کریں۔' : 'Could not post blessing. Please try again.');
+      return;
+    }
     setName('');
     setMessage('');
-    // Real-time subscription handles updating the list for everyone
   };
+
+  const urduStyle = isUrdu ? { direction: "rtl", fontFamily: "Noto Nastaliq Urdu, serif" } : {};
 
   return (
     <>
       <Petals />
       <Header />
+
+      {/* ── LANGUAGE TOGGLE BUTTON ── */}
+      <button
+        onClick={() => setLang(lang === "en" ? "ur" : "en")}
+        className="fixed z-[5000] bottom-6 right-5 px-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg transition-transform hover:scale-105"
+        style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", letterSpacing: "1px" }}
+      >
+        {t.toggleBtn}
+      </button>
 
       {/* ── ENVELOPE SECTION ── */}
       {!opened && (
@@ -159,10 +306,7 @@ const Invitation = () => {
             <button
               onClick={openInvitation}
               className="absolute z-10 w-28 h-28 rounded-full flex flex-col items-center justify-center text-white font-bold border-2 border-white shadow-2xl cursor-pointer transition-transform duration-300 hover:scale-110 text-lg leading-tight"
-              style={{
-                background: "radial-gradient(circle, #c5a059, #a67c37)",
-                fontFamily: "'Cinzel', serif",
-              }}
+              style={{ background: "radial-gradient(circle, #c5a059, #a67c37)", fontFamily: "'Cinzel', serif" }}
             >
               I &amp; U
               <span className="text-sm font-normal mt-1">Click Me</span>
@@ -174,9 +318,7 @@ const Invitation = () => {
       {/* ── INTRO SCREEN ── */}
       {showIntro && (
         <div
-          className={`intro-screen fixed inset-0 z-[2500] bg-black flex items-center justify-center overflow-hidden ${
-            hideIntro ? "hide" : ""
-          }`}
+          className={`intro-screen fixed inset-0 z-[2500] bg-black flex items-center justify-center overflow-hidden ${hideIntro ? "hide" : ""}`}
         >
           <img src="/images/download.jpg" alt="Couple" className="intro-image" />
           <div className="absolute inset-0 bg-black/35" />
@@ -184,10 +326,7 @@ const Invitation = () => {
             <h1 style={{ fontFamily: "'Great Vibes', cursive", fontSize: "clamp(50px,10vw,110px)" }}>
               Iqra &amp; Usman
             </h1>
-            <p
-              className="mt-4 tracking-[4px] text-base uppercase"
-              style={{ fontFamily: "'Cinzel', serif" }}
-            >
+            <p className="mt-4 tracking-[4px] text-base uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
               A Beautiful New Beginning
             </p>
           </div>
@@ -198,42 +337,28 @@ const Invitation = () => {
       <div
         id="invitation"
         className="relative z-10"
-        style={{
-          display: opened ? "block" : "none",
-          opacity: invitationVisible ? 1 : 0,
-          transition: "opacity 1.5s ease",
-        }}
+        style={{ display: opened ? "block" : "none", opacity: invitationVisible ? 1 : 0, transition: "opacity 1.5s ease", ...urduStyle }}
       >
         {/* HERO */}
         <header
           className="mt-[60px] h-screen flex items-center justify-center relative"
-          style={{
-            background:
-              "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070') center/cover no-repeat",
-          }}
+          style={{ background: "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070') center/cover no-repeat, #1a0a09" }}
         >
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative z-10 text-white text-center px-4">
-            <p
-              className="tracking-[5px] text-sm uppercase mb-6"
-              style={{ fontFamily: "'Cinzel', serif" }}
-            >
-              We Invite You To Celebrate Love
+            <p className="tracking-[5px] text-sm uppercase mb-6" style={{ fontFamily: "'Cinzel', serif" }}>
+              {t.inviteText}
             </p>
             <h1
               className="tracking-[2px]"
-              style={{
-                fontFamily: "'Great Vibes', cursive",
-                fontSize: "clamp(60px,15vw,120px)",
-                textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
-              }}
+              style={{ fontFamily: "'Great Vibes', cursive", fontSize: "clamp(60px,15vw,120px)", textShadow: "2px 2px 10px rgba(0,0,0,0.5)" }}
             >
               Iqra <span style={{ color: "#d4af37" }}>&amp;</span> Usman
             </h1>
             <p className="mt-4 text-lg tracking-[2px]">
-              {senderSide === "groom" && "ENGAGEMENT CEREMONY • JUNE 13, 2026"}
-              {senderSide === "bride" && "BARAT / CEREMONY • JUNE 13, 2026"}
-              {senderSide === "both" && "ENGAGEMENT CEREMONY • JUNE 13, 2026"}
+              {senderSide === "groom" && t.heroGroom}
+              {senderSide === "bride" && t.heroBride}
+              {senderSide === "both" && t.heroBoth}
             </p>
           </div>
         </header>
@@ -241,17 +366,10 @@ const Invitation = () => {
         {/* OUR STORY */}
         <section className="py-20 px-5 text-center">
           <div className="reveal">
-            <h2
-              className="mb-5"
-              style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-            >
-              Our Story
+            <h2 className="mb-5" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+              {t.ourStoryTitle}
             </h2>
-            <p className="max-w-xl mx-auto leading-relaxed text-lg">
-              "A beautiful journey begins with a single step and the blessings of those we love. As two families become
-              one, we celebrate the start of a lifetime of friendship, discovery, and a love that grows deeper with every
-              passing day."
-            </p>
+            <p className="max-w-xl mx-auto leading-relaxed text-lg">{t.ourStoryText}</p>
             <img
               src="/images/main_couple.jpeg"
               alt="Couple"
@@ -262,55 +380,20 @@ const Invitation = () => {
 
         {/* FAMILIES */}
         <section className="py-20 px-5 text-center">
-          <h2
-            className="mb-8"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-          >
-            Meet the Families
+          <h2 className="mb-8" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+            {t.familiesTitle}
           </h2>
-          <div
-            className={`reveal flex gap-5 max-w-3xl mx-auto flex-col sm:flex-row ${
-              senderSide === "bride" ? "sm:flex-row-reverse" : ""
-            }`}
-          >
-            {/* Groom's Family */}
-            <div
-              className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${
-                senderSide === "groom"
-                  ? "border-2 border-[#c5a059] bg-[#fffcfb]"
-                  : "border border-[rgba(212,175,55,0.3)] bg-transparent"
-              }`}
-            >
-              <h3
-                className="text-lg mb-3"
-                style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}
-              >
-                The Groom's Family
-              </h3>
+          <div className={`reveal flex gap-5 max-w-3xl mx-auto flex-col sm:flex-row ${senderSide === "bride" ? "sm:flex-row-reverse" : ""}`}>
+            <div className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${senderSide === "groom" ? "border-2 border-[#c5a059] bg-[#fffcfb]" : "border border-[rgba(212,175,55,0.3)] bg-transparent"}`}>
+              <h3 className="text-lg mb-3" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.groomFamilyTitle}</h3>
               <p className="text-sm leading-relaxed">
-                {senderSide === "groom"
-                  ? "With great joy, we invite you to join us as we welcome our beautiful new family member into our hearts."
-                  : "Welcoming you all with open hearts and prayers to celebrate this blessed bond."}
+                {senderSide === "groom" ? t.groomFamilyTextGroom : t.groomFamilyTextOther}
               </p>
             </div>
-            {/* Bride's Family */}
-            <div
-              className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${
-                senderSide === "bride"
-                  ? "border-2 border-[#c5a059] bg-[#fffcfb]"
-                  : "border border-[rgba(212,175,55,0.3)] bg-transparent"
-              }`}
-            >
-              <h3
-                className="text-lg mb-3"
-                style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}
-              >
-                The Bride's Family
-              </h3>
+            <div className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${senderSide === "bride" ? "border-2 border-[#c5a059] bg-[#fffcfb]" : "border border-[rgba(212,175,55,0.3)] bg-transparent"}`}>
+              <h3 className="text-lg mb-3" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.brideFamilyTitle}</h3>
               <p className="text-sm leading-relaxed">
-                {senderSide === "bride"
-                  ? "With immense love and happiness, we invite our dear guests to witness the beautiful new beginning of our daughter."
-                  : "Celebrating a beautiful journey of love, values, and a lifetime union of two beautiful families."}
+                {senderSide === "bride" ? t.brideFamilyTextBride : t.brideFamilyTextOther}
               </p>
             </div>
           </div>
@@ -318,26 +401,14 @@ const Invitation = () => {
 
         {/* COUNTDOWN */}
         <section className="py-20 px-5 text-center bg-[#fffcfb]">
-          <h2
-            className="font-normal text-xl sm:text-2xl mb-8"
-            style={{ fontFamily: "'Cinzel', serif" }}
-          >
-            THE CELEBRATION BEGINS IN
+          <h2 className="font-normal text-xl sm:text-2xl mb-8" style={{ fontFamily: "'Cinzel', serif" }}>
+            {t.countdownTitle}
           </h2>
           <div className="flex justify-center gap-3 flex-wrap mt-4">
-            {[{ label: "Days", val: days }, { label: "Hrs", val: hours }, { label: "Min", val: minutes }, { label: "Sec", val: seconds }].map(
+            {[{ label: t.days, val: days }, { label: t.hours, val: hours }, { label: t.minutes, val: minutes }, { label: t.seconds, val: seconds }].map(
               ({ label, val }) => (
-                <div
-                  key={label}
-                  className="text-white py-4 px-5 rounded min-w-[75px] text-center"
-                  style={{ background: "#5d1916" }}
-                >
-                  <span
-                    className="text-3xl block mb-1"
-                    style={{ fontFamily: "'Cinzel', serif" }}
-                  >
-                    {val}
-                  </span>
+                <div key={label} className="text-white py-4 px-5 rounded min-w-[75px] text-center" style={{ background: "#5d1916" }}>
+                  <span className="text-3xl block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>{val}</span>
                   {label}
                 </div>
               )
@@ -347,90 +418,50 @@ const Invitation = () => {
 
         {/* SCHEDULE CARD */}
         <section className="py-20 px-5 text-center">
-          <h2
-            className="mb-5"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-          >
-            Engagement Planning
+          <h2 className="mb-5" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+            {t.engagementTitle}
           </h2>
           <div className="reveal bg-white mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059]">
-            <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>Engagement Ceremony</h3>
-            <p className="my-3">05:00 PM | June 13, 2026</p>
-            <p>Venue: Hotel ...</p>
+            <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.engagementCeremony}</h3>
+            <p className="my-3">{t.engagementTime}</p>
+            <p>{t.engagementVenue}</p>
           </div>
         </section>
 
         {/* FUNNY PROTOCOLS */}
         <section className="py-8 px-5 text-center">
-          <h3
-            className="font-normal"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "2.5rem" }}
-          >
-            ⚠️ Mandatory Celebration Protocols
+          <h3 className="font-normal" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "2.5rem" }}>
+            {t.protocolTitle}
           </h3>
-          <p className="text-sm text-gray-500 mt-2 mb-6">
-            Please read carefully to avoid dynamic structural layout errors at the venue
-          </p>
+          <p className="text-sm text-gray-500 mt-2 mb-6">{t.protocolSubtitle}</p>
           <div className="max-w-lg mx-auto text-left bg-white p-6 rounded-xl shadow-md border-t-[6px] border-t-[#c5a059]">
             <ul className="list-none space-y-4 leading-relaxed">
-              <li>
-                ⏰ <strong>Punctuality Protocol:</strong>{" "}
-                <em>"Yes, it's a Pakistani wedding"</em>, but the buffet waits for no one. Arrive late, and you'll be
-                left with empty platters and just the gravy. Don't say we didn't warn you!
-              </li>
-              <li>
-                📸 <strong>Camera Policy:</strong> Feel free to capture our best angles. If you capture an awkward
-                chewing face during dinner, please delete it immediately for security optimization.
-              </li>
-              <li>
-                ❤️ <strong>Mandatory Entry Requirement:</strong> Bringing your warmest smiles, loudest cheers, and
-                abundance of Duas is 100% compulsory.
-              </li>
+              <li>⏰ <strong>{t.protocol1Title}</strong> {t.protocol1}</li>
+              <li>📸 <strong>{t.protocol2Title}</strong> {t.protocol2}</li>
+              <li>❤️ <strong>{t.protocol3Title}</strong> {t.protocol3}</li>
             </ul>
           </div>
         </section>
 
         {/* URDU TAPPA */}
         <div className="text-center my-6 py-5 px-5 bg-[#fffcfb] rounded-xl mx-4">
-          <p
-            className="text-xl sm:text-2xl font-bold leading-loose"
-            style={{ fontFamily: "Noto Nastaliq Urdu, serif", color: "#5d1916" }}
-          >
-            "کوتھے تے گلاسی اے،
-            <br />
-            بھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"
+          <p className="text-xl sm:text-2xl font-bold leading-loose" style={{ fontFamily: "Noto Nastaliq Urdu, serif", color: "#5d1916" }}>
+            {t.urduPoem.split('\n').map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
           </p>
-          <p className="text-sm text-gray-500 italic mt-2">
-            (بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)
-          </p>
+          <p className="text-sm text-gray-500 italic mt-2">{t.urduPoemNote}</p>
         </div>
 
         {/* EVENING SCHEDULE TIMELINE */}
         <section className="py-20 px-5 text-center">
-          <h2
-            className="mb-8"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-          >
-            The Evening's Schedule
+          <h2 className="mb-8" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+            {t.scheduleTitle}
           </h2>
           <div className="reveal max-w-md mx-auto text-left bg-white border border-[#c5a059] rounded-xl p-8 shadow-md">
             <div className="border-l-2 border-[#c5a059] pl-6 relative">
-              {[
-                { time: "06:00 PM — Starting Time", desc: "Receiving our guests and families." },
-                { time: "07:00 PM — Exchange of Rings", desc: "The formal engagement ceremony and prayers (Duas)." },
-                { time: "07:30 PM — Dinner", desc: "A festive meal to celebrate the new bond." },
-              ].map((item, i) => (
+              {t.schedule.map((item, i) => (
                 <div key={i} className={`relative ${i < 2 ? "mb-8" : ""}`}>
-                  <span
-                    className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full"
-                    style={{ background: "#5d1916" }}
-                  />
-                  <h4
-                    className="font-normal mb-1"
-                    style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}
-                  >
-                    {item.time}
-                  </h4>
+                  <span className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full" style={{ background: "#5d1916" }} />
+                  <h4 className="font-normal mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{item.time}</h4>
                   <p className="text-sm">{item.desc}</p>
                 </div>
               ))}
@@ -440,62 +471,36 @@ const Invitation = () => {
 
         {/* PARENTS */}
         <section className="py-20 px-5 text-center bg-white">
-          <h2
-            className="mb-8"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-          >
-            With the Blessings of
+          <h2 className="mb-8" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+            {t.parentsTitle}
           </h2>
           <div className="reveal flex flex-col sm:flex-row justify-center gap-8 sm:gap-10 mt-5 flex-wrap">
             <div>
-              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>
-                Groom's Parents
-              </h3>
-              <p>Muhammad Latif &amp; Rehana Latif</p>
+              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.groomParentsTitle}</h3>
+              <p>{t.groomParents}</p>
             </div>
             <div className="hidden sm:block border-l border-[#c5a059] self-center h-12" />
             <div>
-              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>
-                Bride's Parents
-              </h3>
-              <p>Muhammad Mumtaz &amp; Shakeela Mumtaz</p>
+              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.brideParentsTitle}</h3>
+              <p>{t.brideParents}</p>
             </div>
           </div>
         </section>
 
         {/* SISTER NOTE */}
         <section className="py-10 px-5 text-center border-2 border-[#c5a059] mx-4 my-5 rounded-2xl">
-          <div
-            className="mb-4 text-[2.5rem] font-normal"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059" }}
-          >
-            A Message of Love
+          <div className="mb-4 text-[2.5rem] font-normal" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059" }}>
+            {t.messageLoveTitle}
           </div>
           {senderSide === "bride" ? (
             <>
-              <p className="italic text-lg max-w-md mx-auto leading-relaxed">
-                "As Iqra's sister, seeing her step into this beautiful new chapter brings so much joy to my heart. With
-                love and excitement, I warmly invite you to be a part of our happiest moments!"
-              </p>
-              <p
-                className="mt-4 font-bold tracking-widest"
-                style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}
-              >
-                — Bride's Sister
-              </p>
+              <p className="italic text-lg max-w-md mx-auto leading-relaxed">{t.brideMessage}</p>
+              <p className="mt-4 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.brideSigner}</p>
             </>
           ) : (
             <>
-              <p className="italic text-lg max-w-md mx-auto leading-relaxed">
-                "As Usman's sister, I've seen the joy this new chapter has brought to our home. I make this invitation
-                with love to welcome our new family members. Can't wait to celebrate with you all!"
-              </p>
-              <p
-                className="mt-4 font-bold tracking-widest"
-                style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}
-              >
-                — Ayesha
-              </p>
+              <p className="italic text-lg max-w-md mx-auto leading-relaxed">{t.groomMessage}</p>
+              <p className="mt-4 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.groomSigner}</p>
             </>
           )}
         </section>
@@ -503,11 +508,11 @@ const Invitation = () => {
         {/* VENUE / MAP CARD */}
         <div className="reveal bg-white mx-5 sm:mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059] my-8 text-center">
           <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>
-            {senderSide === "bride" ? "Wedding Ceremony" : "Engagement Ceremony"}
+            {senderSide === "bride" ? t.venueBrideTitle : t.venueGroomTitle}
           </h3>
-          <p className="my-3 font-semibold">05:00 PM | June 13, 2026</p>
-          <p>Venue: [House Number/Area Name]</p>
-          <p className="italic text-sm mt-1">Lahore, Pakistan</p>
+          <p className="my-3 font-semibold">{t.venueTime}</p>
+          <p>{t.venueAddress}</p>
+          <p className="italic text-sm mt-1">{t.venueCity}</p>
           <div className="flex flex-col sm:flex-row gap-3 mt-5 justify-center">
             <a
               href="https://www.google.com/maps/search/?api=1&query=Hotel+Name+Gulberg+Lahore+Pakistan"
@@ -516,7 +521,7 @@ const Invitation = () => {
               className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
               style={{ background: "#5d1916" }}
             >
-              📍 OPEN IN GOOGLE MAPS
+              {t.mapsBtn}
             </a>
             <a
               href={
@@ -528,86 +533,49 @@ const Invitation = () => {
               rel="noreferrer"
               className="border border-[#5d1916] text-[#5d1916] hover:bg-[#5d1916] hover:text-white font-cinzel transition duration-300 px-4 py-2 inline-block"
             >
-              📅 ADD TO GOOGLE CALENDAR
+              {t.calBtn}
             </a>
           </div>
         </div>
 
         {/* SIBLING SQUAD */}
         <section className="py-20 px-5 text-center">
-          <h2
-            className="mb-3"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-          >
-            The Sibling Squad
+          <h2 className="mb-3" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+            {t.siblingTitle}
           </h2>
-          <p className="mb-10 text-base">The real masterminds behind the celebration</p>
+          <p className="mb-10 text-base">{t.siblingSubtitle}</p>
 
-          {/* Team Groom */}
-          <h3
-            className="mb-5 font-normal"
-            style={{ fontFamily: "'Cinzel', serif" }}
-          >
-            — Team Groom —
-          </h3>
+          <h3 className="mb-5 font-normal" style={{ fontFamily: "'Cinzel', serif" }}>{t.teamGroom}</h3>
           <div className="reveal grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto mb-10">
             {groomSiblings.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl"
-              >
-                <span
-                  className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3"
-                  style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}
-                >
+              <div key={item.id} className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl">
+                <span className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3" style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}>
                   {item.badge}
                 </span>
-                <h3 className="text-lg" style={{ fontFamily: "'Cinzel', serif" }}>
-                  {item.title}
-                </h3>
+                <h3 className="text-lg" style={{ fontFamily: "'Cinzel', serif" }}>{item.title}</h3>
               </div>
             ))}
           </div>
 
           <hr className="my-10 border-dashed border-gray-200" />
 
-          {/* Team Bride */}
-          <h3
-            className="mb-5 font-normal"
-            style={{ fontFamily: "'Cinzel', serif" }}
-          >
-            — Team Bride —
-          </h3>
+          <h3 className="mb-5 font-normal" style={{ fontFamily: "'Cinzel', serif" }}>{t.teamBride}</h3>
           <div className="reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-3xl mx-auto">
             {brideSiblings.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl"
-              >
-                <span
-                  className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3"
-                  style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}
-                >
+              <div key={item.id} className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl">
+                <span className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3" style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}>
                   {item.badge}
                 </span>
-                <h3 className="text-lg" style={{ fontFamily: "'Cinzel', serif" }}>
-                  {item.title}
-                </h3>
+                <h3 className="text-lg" style={{ fontFamily: "'Cinzel', serif" }}>{item.title}</h3>
               </div>
             ))}
           </div>
         </section>
 
         {/* BLESSING WALL */}
-        <section
-          className="py-20 px-5 text-center border-t"
-          style={{ background: "#fffcfb", borderColor: "#f8ecea" }}
-        >
-          <h2
-            className="mb-6"
-            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
-          >
-            Blessing Wall
+        <section className="py-20 px-5 text-center border-t" style={{ background: "#fffcfb", borderColor: "#f8ecea" }}>
+          <h2 className="mb-6" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
+            {t.blessingTitle}
           </h2>
           <div
             id="blessings-display"
@@ -615,20 +583,11 @@ const Invitation = () => {
             style={{ borderColor: "#f8ecea" }}
           >
             {!Array.isArray(blessings) || blessings.length === 0 ? (
-            <p>Be the first to leave a blessing...</p>
+              <p>{t.blessingEmpty}</p>
             ) : (
-            blessings.map((b) => (
-                <div
-                  key={b.id}
-                  className="blessing-entry text-left mb-4 pb-3 border-b"
-                  style={{ borderColor: "#f8ecea" }}
-                >
-                  <strong
-                    className="block mb-1"
-                    style={{ color: "#5d1916", fontFamily: "'Cinzel', serif" }}
-                  >
-                    {b.name}
-                  </strong>
+              blessings.map((b) => (
+                <div key={b.id} className="blessing-entry text-left mb-4 pb-3 border-b" style={{ borderColor: "#f8ecea" }}>
+                  <strong className="block mb-1" style={{ color: "#5d1916", fontFamily: "'Cinzel', serif" }}>{b.name}</strong>
                   <p>{b.message}</p>
                 </div>
               ))
@@ -637,7 +596,7 @@ const Invitation = () => {
           <div className="max-w-md mx-auto flex flex-col gap-3">
             <input
               type="text"
-              placeholder="Your Name"
+              placeholder={t.namePlaceholder}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
@@ -645,7 +604,7 @@ const Invitation = () => {
             />
             <textarea
               rows="3"
-              placeholder="Write your Duas..."
+              placeholder={t.messagePlaceholder}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
@@ -654,13 +613,9 @@ const Invitation = () => {
             <button
               onClick={addBlessing}
               className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer"
-              style={{
-                background: "#5d1916",
-                fontFamily: "'Cinzel', serif",
-                border: "none",
-              }}
+              style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", border: "none" }}
             >
-              POST BLESSING
+              {t.postBtn}
             </button>
           </div>
         </section>
