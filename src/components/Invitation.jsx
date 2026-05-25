@@ -518,7 +518,7 @@ const Invitation = () => {
           <p className="italic text-sm mt-1">{t.venueCity}</p>
           <div className="flex flex-col sm:flex-row gap-3 mt-5 justify-center">
             <a
-              href="https://www.google.com/maps/search/?api=1&query=Hotel+Name+Gulberg+Lahore+Pakistan"
+              href="https://www.google.com/maps/search/?api=1&query=Arshad+Marquee+Gulberg+Lahore+Pakistan"
               target="_blank"
               rel="noreferrer"
               className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
