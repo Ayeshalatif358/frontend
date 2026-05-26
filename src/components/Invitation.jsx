@@ -273,7 +273,27 @@ const Invitation = () => {
     setName('');
     setMessage('');
   };
+  const likeBlessing = async (id, currentLikes) => {
+  const { error } = await supabase
+    .from("blessings")
+    .update({
+      likes: (currentLikes || 0) + 1,
+    })
+    .eq("id", id);
 
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  setBlessings((prev) =>
+    prev.map((b) =>
+      b.id === id
+        ? { ...b, likes: (b.likes || 0) + 1 }
+        : b
+    )
+  );
+};
   const urduStyle = isUrdu ? { direction: "rtl", fontFamily: "Noto Nastaliq Urdu, serif" } : {};
 
   return (
@@ -589,52 +609,104 @@ const Invitation = () => {
         </section>
 
         {/* BLESSING WALL */}
-        <section className="py-20 px-5 text-center border-t" style={{ background: "#fffcfb", borderColor: "#f8ecea" }}>
-          <h2 className="mb-6" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
-            {t.blessingTitle}
-          </h2>
-          <div
-            id="blessings-display"
-            className="max-w-lg mx-auto mb-8 max-h-72 overflow-y-auto p-3 bg-white rounded-xl border"
-            style={{ borderColor: "#f8ecea" }}
+        {/* BLESSING WALL */}
+<section
+  className="py-20 px-5 text-center border-t"
+  style={{ background: "#fffcfb", borderColor: "#f8ecea" }}
+>
+  <h2
+    className="mb-6"
+    style={{
+      fontFamily: "'Great Vibes', cursive",
+      color: "#c5a059",
+      fontSize: "45px",
+    }}
+  >
+    {t.blessingTitle}
+  </h2>
+
+  <div
+    id="blessings-display"
+    className="max-w-lg mx-auto mb-8 max-h-72 overflow-y-auto p-3 bg-white rounded-xl border"
+    style={{ borderColor: "#f8ecea" }}
+  >
+    {!Array.isArray(blessings) || blessings.length === 0 ? (
+      <p>{t.blessingEmpty}</p>
+    ) : (
+      blessings.map((b) => (
+        <div
+          key={b.id}
+          className="blessing-entry text-left mb-4 pb-3 border-b"
+          style={{ borderColor: "#f8ecea" }}
+        >
+          <strong
+            className="block mb-1"
+            style={{
+              color: "#5d1916",
+              fontFamily: "'Cinzel', serif",
+            }}
           >
-            {!Array.isArray(blessings) || blessings.length === 0 ? (
-              <p>{t.blessingEmpty}</p>
-            ) : (
-              blessings.map((b) => (
-                <div key={b.id} className="blessing-entry text-left mb-4 pb-3 border-b" style={{ borderColor: "#f8ecea" }}>
-                  <strong className="block mb-1" style={{ color: "#5d1916", fontFamily: "'Cinzel', serif" }}>{b.name}</strong>
-                  <p>{b.message}</p>
-                </div>
-              ))
-            )}
-          </div>
-          <div className="max-w-md mx-auto flex flex-col gap-3">
-            <input
-              type="text"
-              placeholder={t.namePlaceholder}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
-              style={{ borderColor: "#c5a059", fontFamily: "'EB Garamond', serif" }}
-            />
-            <textarea
-              rows="3"
-              placeholder={t.messagePlaceholder}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
-              style={{ borderColor: "#c5a059", fontFamily: "'EB Garamond', serif" }}
-            />
-            <button
-              onClick={addBlessing}
-              className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer"
-              style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", border: "none" }}
-            >
-              {t.postBtn}
-            </button>
-          </div>
-        </section>
+            {b.name}
+          </strong>
+
+          <p>{b.message}</p>
+
+          {/* HEART REACTION */}
+          <button
+            onClick={() => likeBlessing(b.id, b.likes)}
+            className="mt-3 flex items-center gap-2 text-sm transition-transform hover:scale-105"
+            style={{
+              color: "#c5a059",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            ❤️ {b.likes || 0}
+          </button>
+        </div>
+      ))
+    )}
+  </div>
+
+  <div className="max-w-md mx-auto flex flex-col gap-3">
+    <input
+      type="text"
+      placeholder={t.namePlaceholder}
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+      style={{
+        borderColor: "#c5a059",
+        fontFamily: "'EB Garamond', serif",
+      }}
+    />
+
+    <textarea
+      rows="3"
+      placeholder={t.messagePlaceholder}
+      value={message}
+      onChange={(e) => setMessage(e.target.value)}
+      className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+      style={{
+        borderColor: "#c5a059",
+        fontFamily: "'EB Garamond', serif",
+      }}
+    />
+
+    <button
+      onClick={addBlessing}
+      className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer"
+      style={{
+        background: "#5d1916",
+        fontFamily: "'Cinzel', serif",
+        border: "none",
+      }}
+    >
+      {t.postBtn}
+    </button>
+  </div>
+</section>
       </div>
     </>
   );
