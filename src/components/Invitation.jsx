@@ -53,7 +53,7 @@ const translations = {
     venueGroomTitle: "Engagement Ceremony",
     venueBrideTitle: "Wedding Ceremony",
     venueTime: "05:00 PM | June 13, 2026",
-    venueAddress: "Venue: [House Number/Area Name]",
+    venueAddress: "Venue: [Arshad Marquee]",
     venueCity: "Lahore, Pakistan",
     mapsBtn: "📍 OPEN IN GOOGLE MAPS",
     calBtn: "📅 ADD TO GOOGLE CALENDAR",
@@ -420,16 +420,62 @@ const Invitation = () => {
         </section>
 
         {/* SCHEDULE CARD */}
-        <section className="py-20 px-5 text-center">
-          <h2 className="mb-5" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
-            {t.engagementTitle}
-          </h2>
-          <div className="reveal bg-white mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059]">
-            <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.engagementCeremony}</h3>
-            <p className="my-3">{t.engagementTime}</p>
-            <p>{t.engagementVenue}</p>
-          </div>
-        </section>
+<section className="py-20 px-5 text-center">
+  <h2
+    className="mb-5"
+    style={{
+      fontFamily: "'Great Vibes', cursive",
+      color: "#c5a059",
+      fontSize: "45px",
+    }}
+  >
+    {t.engagementTitle}
+  </h2>
+
+  <div className="reveal bg-white mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059]">
+    
+    <h3
+      style={{
+        fontFamily: "'Cinzel', serif",
+        color: "#c5a059",
+      }}
+    >
+      {t.engagementCeremony}
+    </h3>
+
+    <p className="my-3">{t.engagementTime}</p>
+    <p>{t.engagementVenue}</p>
+    <p className="italic text-sm mt-1">{t.venueCity}</p>
+
+    <div className="flex flex-col gap-3 mt-5 items-center">
+
+      {/* Google Maps Button */}
+      <a
+        href="https://www.google.com/maps/search/?api=1&query=Arshad+Marquee+Gulberg+Lahore+Pakistan"
+        target="_blank"
+        rel="noreferrer"
+        className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
+        style={{ background: "#5d1916" }}
+      >
+        {t.mapsBtn}
+      </a>
+      {/* Calendar Button */}
+      <a
+        href={
+          senderSide === "bride"
+            ? "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Wedding&dates=20260613T170000/20260613T210000"
+            : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Engagement&dates=20260613T170000/20260613T210000"
+        }
+        target="_blank"
+        rel="noreferrer"
+        className="border border-[#5d1916] text-[#5d1916] hover:bg-[#5d1916] hover:text-white font-cinzel transition duration-300 px-4 py-2 inline-block"
+      >
+        {t.calBtn}
+      </a>
+
+    </div>
+  </div>
+</section>
 
         {/* FUNNY PROTOCOLS */}
         <section className="py-8 px-5 text-center">
@@ -507,39 +553,6 @@ const Invitation = () => {
             </>
           )}
         </section>
-
-        {/* VENUE / MAP CARD */}
-        <div className="reveal bg-white mx-5 sm:mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059] my-8 text-center">
-          <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>
-            {senderSide === "bride" ? t.venueBrideTitle : t.venueGroomTitle}
-          </h3>
-          <p className="my-3 font-semibold">{t.venueTime}</p>
-          <p>{t.venueAddress}</p>
-          <p className="italic text-sm mt-1">{t.venueCity}</p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-5 justify-center">
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Arshad+Marquee+Gulberg+Lahore+Pakistan"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
-              style={{ background: "#5d1916" }}
-            >
-              {t.mapsBtn}
-            </a>
-            <a
-              href={
-                senderSide === "bride"
-                  ? "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Wedding&dates=20260613T170000/20260613T210000"
-                  : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Engagement&dates=20260613T170000/20260613T210000"
-              }
-              target="_blank"
-              rel="noreferrer"
-              className="border border-[#5d1916] text-[#5d1916] hover:bg-[#5d1916] hover:text-white font-cinzel transition duration-300 px-4 py-2 inline-block"
-            >
-              {t.calBtn}
-            </a>
-          </div>
-        </div>
 
         {/* SIBLING SQUAD */}
         <section className="py-20 px-5 text-center">
