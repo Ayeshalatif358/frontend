@@ -174,6 +174,7 @@ const Invitation = () => {
   const [blessings, setBlessings] = useState([]);
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
+  const [posting, setPosting] = useState(false);
 
   const [showIntro, setShowIntro] = useState(false);
   const [hideIntro, setHideIntro] = useState(false);
@@ -257,22 +258,45 @@ const Invitation = () => {
   };
 
   const addBlessing = async () => {
-    if (!name.trim() || !message.trim()) {
-      alert(isUrdu ? 'براہ کرم نام اور پیغام دونوں لکھیں۔' : 'Please fill in both your name and a message.');
-      return;
-    }
-    const { error } = await supabase
-      .from('blessings')
-      .insert([{ name: name.trim(), message: message.trim() }]);
+  if (!name.trim() || !message.trim()) {
+    alert(
+      isUrdu
+        ? "براہ کرم نام اور پیغام دونوں لکھیں۔"
+        : "Please fill in both your name and a message."
+    );
+    return;
+  }
 
-    if (error) {
-      console.error('Full error:', JSON.stringify(error));
-      alert(isUrdu ? 'دعا پوسٹ نہیں ہو سکی۔ دوبارہ کوشش کریں۔' : 'Could not post blessing. Please try again.');
-      return;
-    }
-    setName('');
-    setMessage('');
-  };
+  setPosting(true);
+
+  const { error } = await supabase
+    .from("blessings")
+    .insert([
+      {
+        name: name.trim(),
+        message: message.trim(),
+      },
+    ]);
+
+  if (error) {
+    console.error("Full error:", JSON.stringify(error));
+
+    alert(
+      isUrdu
+        ? "دعا پوسٹ نہیں ہو سکی۔ دوبارہ کوشش کریں۔"
+        : "Could not post blessing. Please try again."
+    );
+
+    setPosting(false);
+    return;
+  }
+
+  setName("");
+  setMessage("");
+
+  // refresh blessings without restarting music
+  window.location.reload();
+};
   const likeBlessing = async (id, currentLikes) => {
   const { error } = await supabase
     .from("blessings")
@@ -609,7 +633,6 @@ const Invitation = () => {
         </section>
 
         {/* BLESSING WALL */}
-        {/* BLESSING WALL */}
 <section
   className="py-20 px-5 text-center border-t"
   style={{ background: "#fffcfb", borderColor: "#f8ecea" }}
@@ -694,16 +717,27 @@ const Invitation = () => {
       }}
     />
 
-    <button
+     <button
       onClick={addBlessing}
-      className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer"
+      disabled={posting}
+      className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer flex items-center justify-center gap-2"
       style={{
         background: "#5d1916",
         fontFamily: "'Cinzel', serif",
         border: "none",
+        opacity: posting ? 0.7 : 1,
       }}
     >
-      {t.postBtn}
+      {posting ? (
+        <>
+          <span
+            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></span>
+          {isUrdu ? "لوڈ ہو رہا ہے..." : "Posting..."}
+        </>
+      ) : (
+        t.postBtn
+      )}
     </button>
   </div>
 </section>
