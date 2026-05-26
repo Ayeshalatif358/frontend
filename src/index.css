@@ -16,7 +16,14 @@ body {
   color: #5d1916;
   overflow-x: hidden;
 }
-
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 /* Envelope flap animations */
 .flap {
   position: absolute;

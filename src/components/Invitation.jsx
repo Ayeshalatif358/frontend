@@ -257,7 +257,7 @@ const Invitation = () => {
     }, 2200);
   };
 
-  const addBlessing = async () => {
+ const addBlessing = async () => {
   if (!name.trim() || !message.trim()) {
     alert(
       isUrdu
@@ -279,23 +279,31 @@ const Invitation = () => {
     ]);
 
   if (error) {
-    console.error("Full error:", JSON.stringify(error));
+    console.error(error);
 
     alert(
       isUrdu
-        ? "دعا پوسٹ نہیں ہو سکی۔ دوبارہ کوشش کریں۔"
-        : "Could not post blessing. Please try again."
+        ? "دعا پوسٹ نہیں ہو سکی۔"
+        : "Could not post blessing."
     );
 
     setPosting(false);
     return;
   }
 
+  // Fetch latest blessings again
+  const { data } = await supabase
+    .from("blessings")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (data) {
+    setBlessings(data);
+  }
+
   setName("");
   setMessage("");
-
-  // refresh blessings without restarting music
-  window.location.reload();
+  setPosting(false);
 };
   const likeBlessing = async (id, currentLikes) => {
   const { error } = await supabase
@@ -731,8 +739,16 @@ const Invitation = () => {
       {posting ? (
         <>
           <span
-            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-          ></span>
+  style={{
+    width: "16px",
+    height: "16px",
+    border: "2px solid white",
+    borderTop: "2px solid transparent",
+    borderRadius: "50%",
+    display: "inline-block",
+    animation: "spin 0.8s linear infinite",
+  }}
+></span>
           {isUrdu ? "لوڈ ہو رہا ہے..." : "Posting..."}
         </>
       ) : (
