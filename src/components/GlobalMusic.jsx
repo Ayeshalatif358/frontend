@@ -4,7 +4,7 @@ const GlobalMusic = () => {
   const musicRef = useRef(null);
 
   useEffect(() => {
-    const startMusic = () => {
+    const playMusic = () => {
       if (musicRef.current) {
         musicRef.current.currentTime = 0;
 
@@ -14,12 +14,19 @@ const GlobalMusic = () => {
       }
     };
 
-    window.addEventListener("restartGlobalMusic", startMusic);
+    // Listen for BOTH events
+    window.addEventListener("playGlobalMusic", playMusic);
+    window.addEventListener("restartGlobalMusic", playMusic);
 
     return () => {
       window.removeEventListener(
+        "playGlobalMusic",
+        playMusic
+      );
+
+      window.removeEventListener(
         "restartGlobalMusic",
-        startMusic
+        playMusic
       );
     };
   }, []);
