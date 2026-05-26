@@ -8,7 +8,7 @@ const translations = {
     inviteText: "We Invite You To Celebrate Love",
     heroBoth: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
     heroGroom: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
-    heroBride: "BARAT / CEREMONY • JUNE 13, 2026",
+    heroBride: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
     ourStoryTitle: "Our Story",
     ourStoryText: `"A beautiful journey begins with a single step and the blessings of those we love. As two families become one, we celebrate the start of a lifetime of friendship, discovery, and a love that grows deeper with every passing day."`,
     familiesTitle: "Meet the Families",
