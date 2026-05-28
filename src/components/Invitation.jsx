@@ -166,9 +166,6 @@ const Invitation = () => {
   const [envelopeOpening, setEnvelopeOpening] = useState(false);
   const [invitationVisible, setInvitationVisible] = useState(false);
 
-  const [user, setUser] = useState(null);
-  const [likedBlessings, setLikedBlessings] = useState([]);
-
   const [days, setDays] = useState("00");
   const [hours, setHours] = useState("00");
   const [minutes, setMinutes] = useState("00");
@@ -181,7 +178,6 @@ const Invitation = () => {
 
   const [showIntro, setShowIntro] = useState(false);
   const [hideIntro, setHideIntro] = useState(false);
-
 
   const groomSiblings = isUrdu ? groomSiblingsUr : groomSiblingsEn;
   const brideSiblings = isUrdu ? brideSiblingsUr : brideSiblingsEn;
@@ -208,38 +204,6 @@ const Invitation = () => {
 
     return () => supabase.removeChannel(channel);
   }, []);
-
-  useEffect(() => {
-  supabase.auth.getSession().then(({ data }) => {
-    setUser(data.session?.user || null);
-  });
-
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    setUser(session?.user || null);
-  });
-
-  return () => subscription.unsubscribe();
-}, []);
-
-
-useEffect(() => {
-  if (!user) return;
-
-  fetchLikes();
-}, [user]);
-
-const fetchLikes = async () => {
-  const { data } = await supabase
-    .from("blessing_likes")
-    .select("blessing_id")
-    .eq("user_id", user.id);
-
-  if (data) {
-    setLikedBlessings(data.map((l) => l.blessing_id));
-  }
-};
 
   useEffect(() => {
     if (!opened && !invitationVisible) return;
@@ -294,13 +258,12 @@ const fetchLikes = async () => {
   };
 
  const addBlessing = async () => {
-  if (!user) {
-    alert("Please login first");
-    return;
-  }
-
   if (!name.trim() || !message.trim()) {
-    alert("Fill all fields");
+    alert(
+      isUrdu
+        ? "براہ کرم نام اور پیغام دونوں لکھیں۔"
+        : "Please fill in both your name and a message."
+    );
     return;
   }
 
@@ -310,7 +273,6 @@ const fetchLikes = async () => {
     .from("blessings")
     .insert([
       {
-        user_id: user.id,
         name: name.trim(),
         message: message.trim(),
       },
@@ -318,71 +280,69 @@ const fetchLikes = async () => {
 
   if (error) {
     console.error(error);
-    alert("Could not post blessing");
+
+    alert(
+      isUrdu
+        ? "دعا پوسٹ نہیں ہو سکی۔"
+        : "Could not post blessing."
+    );
+
+    setPosting(false);
+    return;
+  }
+
+  // Fetch latest blessings again
+  const { data } = await supabase
+    .from("blessings")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (data) {
+    setBlessings(data);
   }
 
   setName("");
   setMessage("");
   setPosting(false);
 };
-  
-const likeBlessing = async (blessingId) => {
-  if (!user) {
-    alert("Please login first");
-    return;
-  }
+const likeBlessing = async (id, currentLikes) => {
+    // Get the array of already liked blessing IDs from localStorage
+    const likedBlessings = JSON.parse(localStorage.getItem("likedBlessings") || "[]");
 
-  const alreadyLiked = likedBlessings.includes(blessingId);
+    // Check if this blessing ID is already inside the array
+    if (likedBlessings.includes(id)) {
+      alert(
+        isUrdu
+          ? "آپ پہلے ہی اس دعا کو پسند کر چکے ہیں!"
+          : "You have already liked this blessing!"
+      );
+      return;
+    }
 
-  if (alreadyLiked) {
-    // UNLIKE
-    await supabase
-      .from("blessing_likes")
-      .delete()
-      .eq("blessing_id", blessingId)
-      .eq("user_id", user.id);
+    const { error } = await supabase
+      .from("blessings")
+      .update({
+        likes: (currentLikes || 0) + 1,
+      })
+      .eq("id", id);
 
-    await supabase.rpc("decrement_likes", {
-      row_id: blessingId,
-    });
+    if (error) {
+      console.error(error);
+      return;
+    }
 
-    setLikedBlessings((prev) =>
-      prev.filter((id) => id !== blessingId)
-    );
-
-    setBlessings((prev) =>
-      prev.map((b) =>
-        b.id === blessingId
-          ? { ...b, likes_count: b.likes_count - 1 }
-          : b
-      )
-    );
-  } else {
-    // LIKE
-    await supabase
-      .from("blessing_likes")
-      .insert([
-        {
-          blessing_id: blessingId,
-          user_id: user.id,
-        },
-      ]);
-
-    await supabase.rpc("increment_likes", {
-      row_id: blessingId,
-    });
-
-    setLikedBlessings((prev) => [...prev, blessingId]);
+    // Save the newly liked blessing ID into localStorage
+    likedBlessings.push(id);
+    localStorage.setItem("likedBlessings", JSON.stringify(likedBlessings));
 
     setBlessings((prev) =>
       prev.map((b) =>
-        b.id === blessingId
-          ? { ...b, likes_count: b.likes_count + 1 }
+        b.id === id
+          ? { ...b, likes: (b.likes || 0) + 1 }
           : b
       )
     );
-  }
-};
+  };
   const urduStyle = isUrdu ? { direction: "rtl", fontFamily: "Noto Nastaliq Urdu, serif" } : {};
 
   return (
@@ -697,24 +657,6 @@ const likeBlessing = async (blessingId) => {
           </div>
         </section>
 
-        {!user ? (
-  <button
-    onClick={async () => {
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-      });
-    }}
-    className="px-5 py-3 rounded-lg text-white"
-    style={{ background: "#5d1916" }}
-  >
-    Login with Google
-  </button>
-) : (
-  <p className="mb-4">
-    Logged in as {user.email}
-  </p>
-)}
-
         {/* BLESSING WALL */}
 <section
   className="py-20 px-5 text-center border-t"
@@ -758,26 +700,20 @@ const likeBlessing = async (blessingId) => {
           <p>{b.message}</p>
 
           {/* HEART REACTION */}
+{/* HEART REACTION */}
           <button
-            onClick={() => likeBlessing(b.id)}
+            onClick={() => likeBlessing(b.id, b.likes)}
             className="mt-3 flex items-center gap-2 text-sm transition-transform hover:scale-105"
             style={{
               color: "#c5a059",
               background: "transparent",
               border: "none",
               cursor: "pointer",
+              // Lower opacity if already liked to give a "disabled" visual cue
+              opacity: JSON.parse(localStorage.getItem("likedBlessings") || "[]").includes(b.id) ? 0.5 : 1,
             }}
           >
-            <span
-  style={{
-    fontSize: "20px",
-    transition: "0.2s",
-  }}
->
-  {likedBlessings.includes(b.id) ? "❤️" : "🤍"}
-</span>
-
-{b.likes_count || 0}
+            {JSON.parse(localStorage.getItem("likedBlessings") || "[]").includes(b.id) ? "❤️" : "🤍"} {b.likes || 0}
           </button>
         </div>
       ))
@@ -847,3 +783,5 @@ const likeBlessing = async (blessingId) => {
 };
 
 export default Invitation;
+
+
