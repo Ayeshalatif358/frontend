@@ -308,22 +308,21 @@ const Invitation = () => {
 const likeBlessing = async (id, currentLikes) => {
     // Get the array of already liked blessing IDs from localStorage
     const likedBlessings = JSON.parse(localStorage.getItem("likedBlessings") || "[]");
+    const hasLiked = likedBlessings.includes(id);
 
-    // Check if this blessing ID is already inside the array
-    if (likedBlessings.includes(id)) {
-      alert(
-        isUrdu
-          ? "آپ پہلے ہی اس دعا کو پسند کر چکے ہیں!"
-          : "You have already liked this blessing!"
-      );
-      return;
+    // Calculate the new target like count
+    let newLikesCount = currentLikes || 0;
+    if (hasLiked) {
+      // If already liked, prevent it from dropping below 0
+      newLikesCount = Math.max(0, newLikesCount - 1);
+    } else {
+      newLikesCount = newLikesCount + 1;
     }
 
+    // Update Supabase
     const { error } = await supabase
       .from("blessings")
-      .update({
-        likes: (currentLikes || 0) + 1,
-      })
+      .update({ likes: newLikesCount })
       .eq("id", id);
 
     if (error) {
@@ -331,14 +330,22 @@ const likeBlessing = async (id, currentLikes) => {
       return;
     }
 
-    // Save the newly liked blessing ID into localStorage
-    likedBlessings.push(id);
-    localStorage.setItem("likedBlessings", JSON.stringify(likedBlessings));
+    // Update localStorage tracking array
+    let updatedLikedBlessings;
+    if (hasLiked) {
+      // Remove ID from array if unliking
+      updatedLikedBlessings = likedBlessings.filter(item => item !== id);
+    } else {
+      // Add ID to array if liking
+      updatedLikedBlessings = [...likedBlessings, id];
+    }
+    localStorage.setItem("likedBlessings", JSON.stringify(updatedLikedBlessings));
 
+    // Update UI state locally
     setBlessings((prev) =>
       prev.map((b) =>
         b.id === id
-          ? { ...b, likes: (b.likes || 0) + 1 }
+          ? { ...b, likes: newLikesCount }
           : b
       )
     );
@@ -699,21 +706,20 @@ const likeBlessing = async (id, currentLikes) => {
 
           <p>{b.message}</p>
 
-          {/* HEART REACTION */}
-{/* HEART REACTION */}
+  {/* HEART REACTION */}
           <button
             onClick={() => likeBlessing(b.id, b.likes)}
-            className="mt-3 flex items-center gap-2 text-sm transition-transform hover:scale-105"
+            className="mt-3 flex items-center gap-2 text-sm transition-transform active:scale-95"
             style={{
               color: "#c5a059",
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              // Lower opacity if already liked to give a "disabled" visual cue
-              opacity: JSON.parse(localStorage.getItem("likedBlessings") || "[]").includes(b.id) ? 0.5 : 1,
             }}
           >
-            {JSON.parse(localStorage.getItem("likedBlessings") || "[]").includes(b.id) ? "❤️" : "🤍"} {b.likes || 0}
+            {/* Show filled heart if liked, empty heart if not */}
+            {JSON.parse(localStorage.getItem("likedBlessings") || "[]").includes(b.id) ? "❤️" : "🤍"} 
+            <span>{b.likes || 0}</span>
           </button>
         </div>
       ))
