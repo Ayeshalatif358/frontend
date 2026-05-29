@@ -485,7 +485,7 @@ const Invitation = () => {
       >
 {/* HERO */}
 {/* HERO */}
-        <header className="mt-[60px] h-[calc(100vh-60px)] w-full flex items-center justify-center relative bg-[#1a0a09] overflow-hidden">
+        <header className="mt-[60px] h-[calc(100vh-100px)] sm:h-[calc(100vh-60px)] w-full flex items-center justify-center relative bg-[#1a0a09] overflow-hidden">
           
           {/* Background Image styled exactly like your intro-image */}
           <img 
