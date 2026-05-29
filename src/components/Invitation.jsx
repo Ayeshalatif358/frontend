@@ -32,7 +32,7 @@ const translations = {
     protocol2: "Feel free to capture our best angles. If you capture an awkward chewing face during dinner, please delete it immediately for security optimization.",
     protocol3Title: "Mandatory Entry Requirement:",
     protocol3: "Bringing your warmest smiles, loudest cheers, and abundance of Duas is 100% compulsory.",
-    urduPoem: `"کوتھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
+    urduPoem: `"کوٹھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
     urduPoemNote: "(بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)",
     scheduleTitle: "The Evening's Schedule",
     schedule: [
@@ -98,7 +98,7 @@ const translations = {
     protocol2: "اچھے زاویوں سے تصویریں لیں۔ اگر کوئی کھانا کھاتے وقت عجیب تصویر آئے تو فوری ڈیلیٹ کریں!",
     protocol3Title: "لازمی شرط:",
     protocol3: "مسکراہٹ، خوشی اور ڈھیر ساری دعائیں لے کر آنا لازمی ہے۔",
-    urduPoem: `"کوتھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
+    urduPoem: `"کوٹھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
     urduPoemNote: "(بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)",
     scheduleTitle: "شام کا پروگرام",
     schedule: [
@@ -106,7 +106,7 @@ const translations = {
       { time: "شام ۷ بجے — انگوٹھی کی تبادلہ", desc: "رسمی منگنی کی تقریب اور دعائیں۔" },
       { time: "شام ساڑھے ۷ بجے — کھانا", desc: "نئے رشتے کی خوشی میں دعوتِ طعام۔" },
     ],
-    parentsTitle: "بزرگوں کی دعاؤں کے ساتھ",
+    parentsTitle: "بڑوں کی دعاؤں کے ساتھ",
     groomParentsTitle: "دولہا کے والدین",
     groomParents: "محمد لطیف اور رحانہ لطیف",
     brideParentsTitle: "دلہن کے والدین",
@@ -127,7 +127,7 @@ const translations = {
     siblingSubtitle: "تقریب کے اصل منتظمین",
     teamGroom: "— ٹیم دولہا —",
     teamBride: "— ٹیم دلہن —",
-    blessingTitle: "دعاؤں کی دیوار",
+    blessingTitle: "خوشیوں کے پیغامات",
     blessingEmpty: "پہلی دعا لکھنے والے آپ بنیں...",
     namePlaceholder: "آپ کا نام",
     messagePlaceholder: "اپنی دعا لکھیں...",
@@ -157,7 +157,7 @@ const brideSiblingsEn = [
 ];
 const brideSiblingsUr = [
   { id: "b1", badge: "طبی ماہر 🤓", title: "فاطمہ (میڈیکل طالبہ)" },
-  { id: "b2", badge: "دلہن کی حفاظت 💂", title: "عثمان (دوسرا سال)" },
+  { id: "b2", badge: "دلہن  کا گارڈ💂", title: "عثمان (دوسرا سال)" },
   { id: "b3", badge: "معصوم فرشتہ 😇", title: "فرحان (نویں جماعت)" },
 ];
 
