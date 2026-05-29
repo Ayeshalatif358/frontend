@@ -32,8 +32,10 @@ const translations = {
     protocol2: "Feel free to capture our best angles. If you capture an awkward chewing face during dinner, please delete it immediately for security optimization.",
     protocol3Title: "Mandatory Entry Requirement:",
     protocol3: "Bringing your warmest smiles, loudest cheers, and abundance of Duas is 100% compulsory.",
-    urduPoem: `"کوٹھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
-    urduPoemNote: "(بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)",
+    urduPoem: `"کالا ڈوریا کنڈے نال اڑیا ای،\nجیہڑا لیٹ آیا... اوہنوں چکن دا صرف لتاں والا ہاڑہ لبھنا ای!"`,
+    urduPoemNote: "(بوفے کھلتے ہی یہاں 'پہلے آؤ، پہلے پاؤ' کا مقابلہ ہوگا۔ لیٹ ہوئے تو چکن پیس بھول جائیں، صرف شوربہ ملے گا!)",
+    urduPoem2:"پپلاں دے پتے ہلدے نے،\nایتھے بوفے مکن توں بعد... صرف خالی برتن ای ملدے نے!",
+    urduPoemNote2:"(وقت کی پابندی لازمی ہے! ہمارے معزز مہمان کھانے کے معاملے میں رحم نہیں کھاتے۔ دیر کی تو برتن چمکتے ہوئے ملیں گے!)",
     scheduleTitle: "The Evening's Schedule",
     schedule: [
       { time: "06:00 PM — Starting Time", desc: "Receiving our guests and families." },
@@ -98,9 +100,11 @@ const translations = {
     protocol2: "اچھے زاویوں سے تصویریں لیں۔ اگر کوئی کھانا کھاتے وقت عجیب تصویر آئے تو فوری ڈیلیٹ کریں!",
     protocol3Title: "لازمی شرط:",
     protocol3: "مسکراہٹ، خوشی اور ڈھیر ساری دعائیں لے کر آنا لازمی ہے۔",
-    urduPoem: `"کوٹھے تے گلاسی اے،\nبھکھے ناں رہ جائیو... جنتا ساڈی پیاسی اے"`,
-    urduPoemNote: "(بوفے کھلتے ہی مقابلہ سخت ہوگا، دیر مت کیجیے گا ورنہ بھوکے رہ جائیں گے)",
-    scheduleTitle: "شام کا پروگرام",
+   urduPoem: `"کالا ڈوریا کنڈے نال اڑیا ای،\nجیہڑا لیٹ آیا... اوہنوں چکن دا صرف لتاں والا ہاڑہ لبھنا ای!"`,
+urduPoemNote: "(بوفے کھلتے ہی یہاں 'پہلے آؤ، پہلے پاؤ' کا مقابلہ ہوگا۔ لیٹ ہوئے تو چکن پیس بھول جائیں، صرف شوربہ ملے گا!)",
+urduPoem2:"پپلاں دے پتے ہلدے نے،\nایتھے بوفے مکن توں بعد... صرف خالی برتن ای ملدے نے!",
+    urduPoemNote2:"(وقت کی پابندی لازمی ہے! ہمارے معزز مہمان کھانے کے معاملے میں رحم نہیں کھاتے۔ دیر کی تو برتن چمکتے ہوئے ملیں گے!)",    
+scheduleTitle: "شام کا پروگرام",
     schedule: [
       { time: "شام ۶ بجے — آغاز", desc: "مہمانوں اور خاندان والوں کا استقبال۔" },
       { time: "شام ۷ بجے — انگوٹھی کی تبادلہ", desc: "رسمی منگنی کی تقریب اور دعائیں۔" },
@@ -939,6 +943,19 @@ const Invitation = () => {
             )}
           </div>
         </section>
+
+
+        <div className="text-center my-6 py-5 px-5 bg-[#fffcfb] rounded-xl mx-4">
+          <p
+            className="text-xl sm:text-2xl font-bold leading-loose"
+            style={{ fontFamily: "Noto Nastaliq Urdu, serif", color: "#5d1916" }}
+          >
+            {t.urduPoem2.split('\n').map((line, i) => (
+              <span key={i}>{line}{i === 0 && <br />}</span>
+            ))}
+          </p>
+          <p className="text-sm text-gray-500 italic mt-2">{t.urduPoemNote2}</p>
+        </div>
       </div>
     </>
   );
