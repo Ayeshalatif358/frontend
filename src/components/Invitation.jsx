@@ -484,15 +484,16 @@ const Invitation = () => {
         }}
       >
       {/* HERO */}
+        {/* HERO */}
         <header
-          className="mt-[60px] h-screen flex items-center justify-center relative"
+          className="mt-[60px] min-h-[calc(100vh-60px)] flex items-center justify-center relative"
           style={{
             background:
               "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070') center/cover no-repeat, #1a0a09",
           }}
         >
           <div className="absolute inset-0 bg-black/40" />
-          <div className="relative z-10 text-white text-center px-4">
+          <div className="relative z-10 text-white text-center px-4 pb-12"> {/* Added padding bottom to prevent overlapping button on small phones */}
             <p className="tracking-[5px] text-sm uppercase mb-6" style={{ fontFamily: "'Cinzel', serif" }}>
               {t.inviteText}
             </p>
@@ -513,10 +514,10 @@ const Invitation = () => {
             </p>
           </div>
 
-{/* ── RESPONSIVE SCROLL DOWN BUTTON ── */}
+          {/* ── RESPONSIVE SCROLL DOWN BUTTON ── */}
           <button
             onClick={scrollToContent}
-            className="absolute bottom-8 left-0 right-0 mx-auto z-20 flex flex-col items-center justify-center text-white/80 hover:text-[#d4af37] transition-all duration-300 focus:outline-none bg-black/30 hover:bg-black/50 backdrop-blur-sm animate-bounce cursor-pointer group rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:py-3 sm:px-5 sm:max-w-[150px]"
+            className="absolute bottom-4 sm:bottom-8 left-0 right-0 mx-auto z-20 flex flex-col items-center justify-center text-white/80 hover:text-[#d4af37] transition-all duration-300 focus:outline-none bg-black/30 hover:bg-black/50 backdrop-blur-sm animate-bounce cursor-pointer group rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:py-3 sm:px-5 sm:max-w-[150px]"
             aria-label="Scroll Down"
           >
             <span 
