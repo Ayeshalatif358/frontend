@@ -67,6 +67,7 @@ const translations = {
     messagePlaceholder: "Write your Duas...",
     postBtn: "POST BLESSING",
     loginBtn: "🔐 Login with Google to Post Blessings",
+    refreshBtn: "🔄 Refresh Blessings",
     toggleBtn: "🌐 اردو میں پڑھیں",
   },
   ur: {
@@ -132,6 +133,7 @@ const translations = {
     messagePlaceholder: "اپنی دعا لکھیں...",
     postBtn: "دعا پوسٹ کریں",
     loginBtn: "🔐 دعا پوسٹ کرنے کے لیے گوگل سے لاگ ان کریں",
+    refreshBtn: "🔄 دعائیں تازہ کریں",
     toggleBtn: "🌐 Read in English",
   }
 };
@@ -180,6 +182,7 @@ const Invitation = () => {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [posting, setPosting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [showIntro, setShowIntro] = useState(false);
   const [hideIntro, setHideIntro] = useState(false);
@@ -190,16 +193,21 @@ const Invitation = () => {
   const senderSide =
     new URLSearchParams(window.location.search).get("side") || "both";
 
-  // ── Fetch blessings + realtime subscription ──
-  useEffect(() => {
-    supabase
+  // ── Load blessings from Supabase ──
+  const loadBlessings = async (showLoader = false) => {
+    if (showLoader) setRefreshing(true);
+    const { data, error } = await supabase
       .from('blessings')
       .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) { console.error('Supabase fetch error:', error.message); return; }
-        if (Array.isArray(data)) setBlessings(data);
-      });
+      .order('created_at', { ascending: false });
+    if (error) { console.error('Supabase fetch error:', error.message); }
+    else if (Array.isArray(data)) setBlessings(data);
+    if (showLoader) setRefreshing(false);
+  };
+
+  // ── Fetch blessings + realtime subscription ──
+  useEffect(() => {
+    loadBlessings();
 
     const channel = supabase
       .channel('blessings-channel')
@@ -214,7 +222,23 @@ const Invitation = () => {
   // ── Auth state ──
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user || null);
+      const sessionUser = data.session?.user || null;
+      setUser(sessionUser);
+
+      // If returning from OAuth redirect, restore state without intro animation
+      const savedScroll = sessionStorage.getItem("blessingScrollY");
+      if (sessionUser && savedScroll !== null) {
+        // Skip envelope + intro: go straight to invitation visible
+        setOpened(true);
+        setInvitationVisible(true);
+        sessionStorage.removeItem("blessingScrollY");
+        // Restore scroll after DOM paints
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            window.scrollTo({ top: parseInt(savedScroll, 10), behavior: "instant" });
+          }, 100);
+        });
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -298,10 +322,12 @@ const Invitation = () => {
 
   // ── Google Login ──
   const handleLogin = async () => {
+    // Save current scroll so we can restore after OAuth redirect
+    sessionStorage.setItem("blessingScrollY", String(window.scrollY));
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: window.location.origin + window.location.pathname + window.location.search,
       },
     });
   };
@@ -754,6 +780,30 @@ const Invitation = () => {
           >
             {t.blessingTitle}
           </h2>
+
+          {/* Refresh button */}
+          <div className="flex justify-end max-w-lg mx-auto mb-2">
+            <button
+              onClick={() => loadBlessings(true)}
+              disabled={refreshing}
+              className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-opacity hover:opacity-80"
+              style={{
+                borderColor: "#c5a059",
+                color: "#5d1916",
+                fontFamily: "'Cinzel', serif",
+                background: "white",
+                cursor: refreshing ? "not-allowed" : "pointer",
+                opacity: refreshing ? 0.6 : 1,
+              }}
+            >
+              <span style={{ display: "inline-block", animation: refreshing ? "spin 0.8s linear infinite" : "none" }}>
+                🔄
+              </span>
+              {refreshing
+                ? (isUrdu ? "لوڈ ہو رہا ہے..." : "Loading...")
+                : t.refreshBtn}
+            </button>
+          </div>
 
           {/* Blessings list */}
           <div
