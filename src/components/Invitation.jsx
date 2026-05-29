@@ -32,10 +32,10 @@ const translations = {
     protocol2: "Feel free to capture our best angles. If you capture an awkward chewing face during dinner, please delete it immediately for security optimization.",
     protocol3Title: "Mandatory Entry Requirement:",
     protocol3: "Bringing your warmest smiles, loudest cheers, and abundance of Duas is 100% compulsory.",
-    urduPoem: `"کالا ڈوریا کنڈے نال اڑیا ای،\nجیہڑا لیٹ آیا... اوہنوں چکن دا صرف لتاں والا ہاڑہ لبھنا ای!"`,
-    urduPoemNote: "(بوفے کھلتے ہی یہاں 'پہلے آؤ، پہلے پاؤ' کا مقابلہ ہوگا۔ لیٹ ہوئے تو چکن پیس بھول جائیں، صرف شوربہ ملے گا!)",
-    urduPoem2:"پپلاں دے پتے ہلدے نے،\nایتھے بوفے مکن توں بعد... صرف خالی برتن ای ملدے نے!",
-    urduPoemNote2:"(وقت کی پابندی لازمی ہے! ہمارے معزز مہمان کھانے کے معاملے میں رحم نہیں کھاتے۔ دیر کی تو برتن چمکتے ہوئے ملیں گے!)",
+    urduPoem: "،کالا ڈوریا کنڈے نال اڑیا ای\n!جیہڑا لیٹ آیا... اوہنوں چکن دا صرف لتاں والا ہاڑہ لبھنا ای",
+    urduPoemNote: "(!بوفے کھلتے ہی یہاں 'پہلے آؤ، پہلے پاؤ' کا مقابلہ ہوگا۔ لیٹ ہوئے تو چکن پیس بھول جائیں، صرف شوربہ ملے گا)",
+    urduPoem2: "،پپلاں دے پتے ہلدے نے\n!ایتھے بوفے مکن توں بعد... صرف خالی برتن ای ملدے نے",
+    urduPoemNote2: "(!وقت کی پابندی لازمی ہے! ہمارے معزز مہمان کھانے کے معاملے میں رحم نہیں کھاتے۔ دیر کی تو برتن چمکتے ہوئے ملیں گے)",
     scheduleTitle: "The Evening's Schedule",
     schedule: [
       { time: "06:00 PM — Starting Time", desc: "Receiving our guests and families." },
@@ -100,11 +100,11 @@ const translations = {
     protocol2: "اچھے زاویوں سے تصویریں لیں۔ اگر کوئی کھانا کھاتے وقت عجیب تصویر آئے تو فوری ڈیلیٹ کریں!",
     protocol3Title: "لازمی شرط:",
     protocol3: "مسکراہٹ، خوشی اور ڈھیر ساری دعائیں لے کر آنا لازمی ہے۔",
-   urduPoem: `"کالا ڈوریا کنڈے نال اڑیا ای،\nجیہڑا لیٹ آیا... اوہنوں چکن دا صرف لتاں والا ہاڑہ لبھنا ای!"`,
-urduPoemNote: "(بوفے کھلتے ہی یہاں 'پہلے آؤ، پہلے پاؤ' کا مقابلہ ہوگا۔ لیٹ ہوئے تو چکن پیس بھول جائیں، صرف شوربہ ملے گا!)",
-urduPoem2:"پپلاں دے پتے ہلدے نے،\nایتھے بوفے مکن توں بعد... صرف خالی برتن ای ملدے نے!",
-    urduPoemNote2:"(وقت کی پابندی لازمی ہے! ہمارے معزز مہمان کھانے کے معاملے میں رحم نہیں کھاتے۔ دیر کی تو برتن چمکتے ہوئے ملیں گے!)",    
-scheduleTitle: "شام کا پروگرام",
+    urduPoem: "،کالا ڈوریا کنڈے نال اڑیا ای\n!جیہڑا لیٹ آیا... اوہنوں چکن دا صرف لتاں والا ہاڑہ لبھنا ای",
+    urduPoemNote: "(!بوفے کھلتے ہی یہاں 'پہلے آؤ، پہلے پاؤ' کا مقابلہ ہوگا۔ لیٹ ہوئے تو چکن پیس بھول جائیں، صرف شوربہ ملے گا)",
+    urduPoem2: "،پپلاں دے پتے ہلدے نے\n!ایتھے بوفے مکن توں بعد... صرف خالی برتن ای ملدے نے",
+    urduPoemNote2: "(!وقت کی پابندی لازمی ہے! ہمارے معزز مہمان کھانے کے معاملے میں رحم نہیں کھاتے۔ دیر کی تو برتن چمکتے ہوئے ملیں گے)",
+    scheduleTitle: "شام کا پروگرام",
     schedule: [
       { time: "شام ۶ بجے — آغاز", desc: "مہمانوں اور خاندان والوں کا استقبال۔" },
       { time: "شام ۷ بجے — انگوٹھی کی تبادلہ", desc: "رسمی منگنی کی تقریب اور دعائیں۔" },
@@ -513,22 +513,25 @@ const Invitation = () => {
             </p>
           </div>
 
-          {/* ── SCROLL DOWN BUTTON ── */}
+{/* ── SCROLL DOWN BUTTON ── */}
           <button
             onClick={scrollToContent}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center text-white/80 hover:text-[#d4af37] transition-colors duration-300 focus:outline-none animate-bounce bg-black/20 p-3 rounded-full backdrop-blur-sm"
+            className="absolute bottom-6 left-0 right-0 mx-auto z-20 flex flex-col items-center justify-center text-white/80 hover:text-[#d4af37] transition-all duration-300 focus:outline-none bg-black/30 hover:bg-black/50 p-2 sm:p-3 rounded-full backdrop-blur-sm w-12 h-12 sm:w-auto sm:h-auto max-w-[140px] animate-bounce cursor-pointer group"
             aria-label="Scroll Down"
           >
-            <span className="text-xs tracking-[2px] uppercase mb-1 hidden sm:block" style={{ fontFamily: "'Cinzel', serif" }}>
+            <span 
+              className="text-[10px] sm:text-xs tracking-[2px] uppercase mb-1 hidden sm:block font-medium transition-colors group-hover:text-[#d4af37]" 
+              style={{ fontFamily: "'Cinzel', serif" }}
+            >
               {isUrdu ? "نیچے جائیں" : "Scroll Down"}
             </span>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               fill="none" 
               viewBox="0 0 24 24" 
-              strokeWidth={2} 
+              strokeWidth={2.5} 
               stroke="currentColor" 
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6 transition-transform group-hover:translate-y-0.5"
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
