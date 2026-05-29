@@ -190,6 +190,7 @@ const Invitation = () => {
   const groomSiblings = isUrdu ? groomSiblingsUr : groomSiblingsEn;
   const brideSiblings = isUrdu ? brideSiblingsUr : brideSiblingsEn;
 
+  
   const senderSide =
     new URLSearchParams(window.location.search).get("side") || "both";
 
@@ -400,6 +401,14 @@ const Invitation = () => {
     ? { direction: "rtl", fontFamily: "Noto Nastaliq Urdu, serif" }
     : {};
 
+    // ── Smooth Scroll past Hero ──
+  const scrollToContent = () => {
+    const nextSection = document.getElementById("our-story-section");
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <>
       <Petals />
@@ -470,7 +479,7 @@ const Invitation = () => {
           ...urduStyle,
         }}
       >
-        {/* HERO */}
+      {/* HERO */}
         <header
           className="mt-[60px] h-screen flex items-center justify-center relative"
           style={{
@@ -499,10 +508,31 @@ const Invitation = () => {
               {senderSide === "both" && t.heroBoth}
             </p>
           </div>
+
+          {/* ── SCROLL DOWN BUTTON ── */}
+          <button
+            onClick={scrollToContent}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center text-white/80 hover:text-[#d4af37] transition-colors duration-300 focus:outline-none animate-bounce bg-black/20 p-3 rounded-full backdrop-blur-sm"
+            aria-label="Scroll Down"
+          >
+            <span className="text-xs tracking-[2px] uppercase mb-1 hidden sm:block" style={{ fontFamily: "'Cinzel', serif" }}>
+              {isUrdu ? "نیچے جائیں" : "Scroll Down"}
+            </span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth={2} 
+              stroke="currentColor" 
+              className="w-6 h-6"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
         </header>
 
         {/* OUR STORY */}
-        <section className="py-20 px-5 text-center">
+        <section id="our-story-section" className="py-20 px-5 text-center">
           <div className="reveal">
             <h2 className="mb-5" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
               {t.ourStoryTitle}
