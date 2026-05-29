@@ -484,124 +484,64 @@ const Invitation = () => {
         }}
       >
 {/* HERO */}
-<header
-  className="
-    mt-[60px]
-    min-h-screen
-    flex
-    items-center
-    justify-center
-    relative
-    bg-[#1a0a09]
-    bg-cover
-    bg-center
-    bg-no-repeat
-  "
-  style={{
-    backgroundImage:
-      "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070')",
-  }}
->
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-black/45" />
+{/* HERO */}
+        <header className="mt-[60px] h-[calc(100vh-60px)] w-full flex items-center justify-center relative bg-[#1a0a09] overflow-hidden">
+          
+          {/* Background Image styled exactly like your intro-image */}
+          <img 
+            src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070" 
+            alt="Hero Background" 
+            className="absolute inset-0 w-full h-full object-cover object-top z-0 select-none pointer-events-none"
+          />
+          
+          {/* Dark Overlay to keep text readable */}
+          <div className="absolute inset-0 bg-black/45 z-10" />
 
-  {/* Content */}
-  <div className="relative z-10 text-white text-center px-4 pb-16">
-    <p
-      className="tracking-[5px] text-xs sm:text-sm uppercase mb-6"
-      style={{ fontFamily: "'Cinzel', serif" }}
-    >
-      {t.inviteText}
-    </p>
+          {/* Hero Content */}
+          <div className="relative z-20 text-white text-center px-4 pb-16">
+            <p className="tracking-[5px] text-xs sm:text-sm uppercase mb-6" style={{ fontFamily: "'Cinzel', serif" }}>
+              {t.inviteText}
+            </p>
+            <h1
+              className="tracking-[2px]"
+              style={{
+                fontFamily: "'Great Vibes', cursive",
+                fontSize: "clamp(50px,13vw,120px)",
+                textShadow: "2px 2px 10px rgba(0,0,0,0.6)",
+              }}
+            >
+              Iqra <span style={{ color: "#d4af37" }}>&amp;</span> Usman
+            </h1>
+            <p className="mt-4 text-base sm:text-lg tracking-[2px]">
+              {senderSide === "groom" && t.heroGroom}
+              {senderSide === "bride" && t.heroBride}
+              {senderSide === "both" && t.heroBoth}
+            </p>
+          </div>
 
-    <h1
-      className="tracking-[2px]"
-      style={{
-        fontFamily: "'Great Vibes', cursive",
-        fontSize: "clamp(50px,13vw,120px)",
-        textShadow: "2px 2px 10px rgba(0,0,0,0.6)",
-      }}
-    >
-      Iqra <span style={{ color: "#d4af37" }}>&amp;</span> Usman
-    </h1>
-
-    <p className="mt-4 text-base sm:text-lg tracking-[2px]">
-      {senderSide === "groom" && t.heroGroom}
-      {senderSide === "bride" && t.heroBride}
-      {senderSide === "both" && t.heroBoth}
-    </p>
-  </div>
-
-  {/* Scroll Down Button */}
-  <button
-    onClick={scrollToContent}
-    className="
-      absolute
-      bottom-4
-      sm:bottom-8
-      left-0
-      right-0
-      mx-auto
-      z-20
-      flex
-      flex-col
-      items-center
-      justify-center
-      text-white/80
-      hover:text-[#d4af37]
-      transition-all
-      duration-300
-      focus:outline-none
-      bg-black/30
-      hover:bg-black/50
-      backdrop-blur-sm
-      animate-bounce
-      cursor-pointer
-      group
-      rounded-full
-      w-12
-      h-12
-      sm:w-auto
-      sm:h-auto
-      sm:py-3
-      sm:px-5
-      sm:max-w-[150px]
-    "
-    aria-label="Scroll Down"
-  >
-    <span
-      className="
-        text-[11px]
-        tracking-[2px]
-        uppercase
-        mb-1
-        hidden
-        sm:block
-        font-medium
-        transition-colors
-        duration-300
-        group-hover:text-[#d4af37]
-      "
-      style={{ fontFamily: "'Cinzel', serif" }}
-    >
-      {isUrdu ? "نیچے جائیں" : "Scroll Down"}
-    </span>
-
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2.5}
-      stroke="currentColor"
-      className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-y-1"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-      />
-    </svg>
-  </button>
+          {/* ── RESPONSIVE SCROLL DOWN BUTTON ── */}
+          <button
+            onClick={scrollToContent}
+            className="absolute bottom-4 sm:bottom-8 left-0 right-0 mx-auto z-20 flex flex-col items-center justify-center text-white/80 hover:text-[#d4af37] transition-all duration-300 focus:outline-none bg-black/30 hover:bg-black/50 backdrop-blur-sm animate-bounce cursor-pointer group rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:py-3 sm:px-5 sm:max-w-[150px]"
+            aria-label="Scroll Down"
+          >
+            <span 
+              className="text-[11px] tracking-[2px] uppercase mb-1 hidden sm:block font-medium transition-colors duration-300 group-hover:text-[#d4af37]" 
+              style={{ fontFamily: "'Cinzel', serif" }}
+            >
+              {isUrdu ? "نیچے جائیں" : "Scroll Down"}
+            </span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth={2.5} 
+              stroke="currentColor" 
+              className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-y-1"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
 </header>
 
         {/* OUR STORY */}
