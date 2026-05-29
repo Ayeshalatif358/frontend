@@ -483,31 +483,32 @@ const Invitation = () => {
           ...urduStyle,
         }}
       >
-      {/* HERO */}
-        {/* HERO */}
+{/* HERO */}
         <header
-          className="mt-[60px] min-h-[calc(100vh-60px)] flex items-center justify-center relative"
+          className="mt-[60px] min-h-[calc(100vh-60px)] flex items-center justify-center relative bg-[#1a0a09]"
           style={{
-            background:
-              "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070') center/cover no-repeat, #1a0a09",
+            backgroundImage: "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070')",
+            backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: window.innerWidth < 640 ? "auto 100%" : "cover"
           }}
         >
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="relative z-10 text-white text-center px-4 pb-12"> {/* Added padding bottom to prevent overlapping button on small phones */}
-            <p className="tracking-[5px] text-sm uppercase mb-6" style={{ fontFamily: "'Cinzel', serif" }}>
+          <div className="absolute inset-0 bg-black/45" /> {/* Slightly darker overlay to improve text readability on zoomed images */}
+          <div className="relative z-10 text-white text-center px-4 pb-16">
+            <p className="tracking-[5px] text-xs sm:text-sm uppercase mb-6" style={{ fontFamily: "'Cinzel', serif" }}>
               {t.inviteText}
             </p>
             <h1
               className="tracking-[2px]"
               style={{
                 fontFamily: "'Great Vibes', cursive",
-                fontSize: "clamp(60px,15vw,120px)",
-                textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
+                fontSize: "clamp(50px,13vw,120px)", /* Adjusted slightly for mobile boundaries */
+                textShadow: "2px 2px 10px rgba(0,0,0,0.6)",
               }}
             >
               Iqra <span style={{ color: "#d4af37" }}>&amp;</span> Usman
             </h1>
-            <p className="mt-4 text-lg tracking-[2px]">
+            <p className="mt-4 text-base sm:text-lg tracking-[2px]">
               {senderSide === "groom" && t.heroGroom}
               {senderSide === "bride" && t.heroBride}
               {senderSide === "both" && t.heroBoth}
