@@ -66,6 +66,7 @@ const translations = {
     namePlaceholder: "Your Name",
     messagePlaceholder: "Write your Duas...",
     postBtn: "POST BLESSING",
+    loginBtn: "🔐 Login with Google to Post Blessings",
     toggleBtn: "🌐 اردو میں پڑھیں",
   },
   ur: {
@@ -130,6 +131,7 @@ const translations = {
     namePlaceholder: "آپ کا نام",
     messagePlaceholder: "اپنی دعا لکھیں...",
     postBtn: "دعا پوسٹ کریں",
+    loginBtn: "🔐 دعا پوسٹ کرنے کے لیے گوگل سے لاگ ان کریں",
     toggleBtn: "🌐 Read in English",
   }
 };
@@ -166,6 +168,9 @@ const Invitation = () => {
   const [envelopeOpening, setEnvelopeOpening] = useState(false);
   const [invitationVisible, setInvitationVisible] = useState(false);
 
+  const [user, setUser] = useState(null);
+  const [likedBlessings, setLikedBlessings] = useState([]);
+
   const [days, setDays] = useState("00");
   const [hours, setHours] = useState("00");
   const [minutes, setMinutes] = useState("00");
@@ -185,6 +190,7 @@ const Invitation = () => {
   const senderSide =
     new URLSearchParams(window.location.search).get("side") || "both";
 
+  // ── Fetch blessings + realtime subscription ──
   useEffect(() => {
     supabase
       .from('blessings')
@@ -205,6 +211,37 @@ const Invitation = () => {
     return () => supabase.removeChannel(channel);
   }, []);
 
+  // ── Auth state ──
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user || null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // ── Fetch liked blessings when user logs in ──
+  useEffect(() => {
+    if (!user) return;
+    fetchLikes();
+  }, [user]);
+
+  const fetchLikes = async () => {
+    const { data } = await supabase
+      .from("blessing_likes")
+      .select("blessing_id")
+      .eq("user_id", user.id);
+
+    if (data) {
+      setLikedBlessings(data.map((l) => l.blessing_id));
+    }
+  };
+
+  // ── Countdown timer ──
   useEffect(() => {
     if (!opened && !invitationVisible) return;
     const eventDate =
@@ -227,6 +264,7 @@ const Invitation = () => {
     return () => clearInterval(timer);
   }, [opened, invitationVisible, senderSide]);
 
+  // ── Scroll reveal ──
   useEffect(() => {
     if (!invitationVisible) return;
     const revealSections = () => {
@@ -241,6 +279,7 @@ const Invitation = () => {
     return () => window.removeEventListener("scroll", revealSections);
   }, [invitationVisible]);
 
+  // ── Open envelope ──
   const openInvitation = () => {
     window.dispatchEvent(new Event("playGlobalMusic"));
     setEnvelopeOpening(true);
@@ -257,119 +296,101 @@ const Invitation = () => {
     }, 2200);
   };
 
- const addBlessing = async () => {
-  if (!name.trim() || !message.trim()) {
-    alert(
-      isUrdu
-        ? "براہ کرم نام اور پیغام دونوں لکھیں۔"
-        : "Please fill in both your name and a message."
-    );
-    return;
-  }
-
-  setPosting(true);
-
-  const { error } = await supabase
-    .from("blessings")
-    .insert([
-      {
-        name: name.trim(),
-        message: message.trim(),
+  // ── Google Login ──
+  const handleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
       },
-    ]);
+    });
+  };
 
-  if (error) {
-    console.error(error);
-
-    alert(
-      isUrdu
-        ? "دعا پوسٹ نہیں ہو سکی۔"
-        : "Could not post blessing."
-    );
-
-    setPosting(false);
-    return;
-  }
-
-  // Fetch latest blessings again
-  const { data } = await supabase
-    .from("blessings")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (data) {
-    setBlessings(data);
-  }
-
-  setName("");
-  setMessage("");
-  setPosting(false);
-};
-const likeBlessing = async (id, currentLikes) => {
-    // Get the array of already liked blessing IDs from localStorage
-    const likedBlessings = JSON.parse(localStorage.getItem("likedBlessings") || "[]");
-    const hasLiked = likedBlessings.includes(id);
-
-    // Calculate the new target like count
-    let newLikesCount = currentLikes || 0;
-    if (hasLiked) {
-      // If already liked, prevent it from dropping below 0
-      newLikesCount = Math.max(0, newLikesCount - 1);
-    } else {
-      newLikesCount = newLikesCount + 1;
+  // ── Post blessing ──
+  const addBlessing = async () => {
+    if (!user) {
+      alert("Please login first");
+      return;
     }
-
-    // Update Supabase
+    if (!name.trim() || !message.trim()) {
+      alert("Fill all fields");
+      return;
+    }
+    setPosting(true);
     const { error } = await supabase
       .from("blessings")
-      .update({ likes: newLikesCount })
-      .eq("id", id);
+      .insert([{ user_id: user.id, name: name.trim(), message: message.trim() }]);
 
     if (error) {
       console.error(error);
+      alert("Could not post blessing");
+    }
+    setName("");
+    setMessage("");
+    setPosting(false);
+  };
+
+  // ── Like / Unlike ──
+  const likeBlessing = async (blessingId) => {
+    if (!user) {
+      alert("Please login first");
       return;
     }
 
-    // Update localStorage tracking array
-    let updatedLikedBlessings;
-    if (hasLiked) {
-      // Remove ID from array if unliking
-      updatedLikedBlessings = likedBlessings.filter(item => item !== id);
-    } else {
-      // Add ID to array if liking
-      updatedLikedBlessings = [...likedBlessings, id];
-    }
-    localStorage.setItem("likedBlessings", JSON.stringify(updatedLikedBlessings));
+    const alreadyLiked = likedBlessings.includes(blessingId);
 
-    // Update UI state locally
-    setBlessings((prev) =>
-      prev.map((b) =>
-        b.id === id
-          ? { ...b, likes: newLikesCount }
-          : b
-      )
-    );
+    if (alreadyLiked) {
+      await supabase
+        .from("blessing_likes")
+        .delete()
+        .eq("blessing_id", blessingId)
+        .eq("user_id", user.id);
+
+      await supabase.rpc("decrement_likes", { row_id: blessingId });
+
+      setLikedBlessings((prev) => prev.filter((id) => id !== blessingId));
+      setBlessings((prev) =>
+        prev.map((b) =>
+          b.id === blessingId ? { ...b, likes_count: b.likes_count - 1 } : b
+        )
+      );
+    } else {
+      await supabase
+        .from("blessing_likes")
+        .insert([{ blessing_id: blessingId, user_id: user.id }]);
+
+      await supabase.rpc("increment_likes", { row_id: blessingId });
+
+      setLikedBlessings((prev) => [...prev, blessingId]);
+      setBlessings((prev) =>
+        prev.map((b) =>
+          b.id === blessingId ? { ...b, likes_count: b.likes_count + 1 } : b
+        )
+      );
+    }
   };
-  const urduStyle = isUrdu ? { direction: "rtl", fontFamily: "Noto Nastaliq Urdu, serif" } : {};
+
+  const urduStyle = isUrdu
+    ? { direction: "rtl", fontFamily: "Noto Nastaliq Urdu, serif" }
+    : {};
 
   return (
     <>
       <Petals />
       <Header />
 
-      {/* ── LANGUAGE TOGGLE BUTTON ── */}
-      {/* ── LANGUAGE TOGGLE BUTTON ── */}
-{invitationVisible && (
-  <button
-    onClick={() => setLang(lang === "en" ? "ur" : "en")}
-    className="fixed z-[5000] bottom-6 right-5 px-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg transition-transform hover:scale-105"
-    style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", letterSpacing: "1px" }}
-  >
-    {t.toggleBtn}
-  </button>
-)}
+      {/* ── LANGUAGE TOGGLE ── */}
+      {invitationVisible && (
+        <button
+          onClick={() => setLang(lang === "en" ? "ur" : "en")}
+          className="fixed z-[5000] bottom-6 right-5 px-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg transition-transform hover:scale-105"
+          style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", letterSpacing: "1px" }}
+        >
+          {t.toggleBtn}
+        </button>
+      )}
 
-      {/* ── ENVELOPE SECTION ── */}
+      {/* ── ENVELOPE ── */}
       {!opened && (
         <div
           id="envelope-section"
@@ -416,12 +437,20 @@ const likeBlessing = async (id, currentLikes) => {
       <div
         id="invitation"
         className="relative z-10"
-        style={{ display: opened ? "block" : "none", opacity: invitationVisible ? 1 : 0, transition: "opacity 1.5s ease", ...urduStyle }}
+        style={{
+          display: opened ? "block" : "none",
+          opacity: invitationVisible ? 1 : 0,
+          transition: "opacity 1.5s ease",
+          ...urduStyle,
+        }}
       >
         {/* HERO */}
         <header
           className="mt-[60px] h-screen flex items-center justify-center relative"
-          style={{ background: "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070') center/cover no-repeat, #1a0a09" }}
+          style={{
+            background:
+              "url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070') center/cover no-repeat, #1a0a09",
+          }}
         >
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative z-10 text-white text-center px-4">
@@ -430,7 +459,11 @@ const likeBlessing = async (id, currentLikes) => {
             </p>
             <h1
               className="tracking-[2px]"
-              style={{ fontFamily: "'Great Vibes', cursive", fontSize: "clamp(60px,15vw,120px)", textShadow: "2px 2px 10px rgba(0,0,0,0.5)" }}
+              style={{
+                fontFamily: "'Great Vibes', cursive",
+                fontSize: "clamp(60px,15vw,120px)",
+                textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
+              }}
             >
               Iqra <span style={{ color: "#d4af37" }}>&amp;</span> Usman
             </h1>
@@ -462,15 +495,35 @@ const likeBlessing = async (id, currentLikes) => {
           <h2 className="mb-8" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}>
             {t.familiesTitle}
           </h2>
-          <div className={`reveal flex gap-5 max-w-3xl mx-auto flex-col sm:flex-row ${senderSide === "bride" ? "sm:flex-row-reverse" : ""}`}>
-            <div className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${senderSide === "groom" ? "border-2 border-[#c5a059] bg-[#fffcfb]" : "border border-[rgba(212,175,55,0.3)] bg-transparent"}`}>
-              <h3 className="text-lg mb-3" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.groomFamilyTitle}</h3>
+          <div
+            className={`reveal flex gap-5 max-w-3xl mx-auto flex-col sm:flex-row ${
+              senderSide === "bride" ? "sm:flex-row-reverse" : ""
+            }`}
+          >
+            <div
+              className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${
+                senderSide === "groom"
+                  ? "border-2 border-[#c5a059] bg-[#fffcfb]"
+                  : "border border-[rgba(212,175,55,0.3)] bg-transparent"
+              }`}
+            >
+              <h3 className="text-lg mb-3" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>
+                {t.groomFamilyTitle}
+              </h3>
               <p className="text-sm leading-relaxed">
                 {senderSide === "groom" ? t.groomFamilyTextGroom : t.groomFamilyTextOther}
               </p>
             </div>
-            <div className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${senderSide === "bride" ? "border-2 border-[#c5a059] bg-[#fffcfb]" : "border border-[rgba(212,175,55,0.3)] bg-transparent"}`}>
-              <h3 className="text-lg mb-3" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.brideFamilyTitle}</h3>
+            <div
+              className={`flex-1 p-6 rounded-xl transition-transform duration-300 hover:-translate-y-2 shadow-md ${
+                senderSide === "bride"
+                  ? "border-2 border-[#c5a059] bg-[#fffcfb]"
+                  : "border border-[rgba(212,175,55,0.3)] bg-transparent"
+              }`}
+            >
+              <h3 className="text-lg mb-3" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>
+                {t.brideFamilyTitle}
+              </h3>
               <p className="text-sm leading-relaxed">
                 {senderSide === "bride" ? t.brideFamilyTextBride : t.brideFamilyTextOther}
               </p>
@@ -484,78 +537,71 @@ const likeBlessing = async (id, currentLikes) => {
             {t.countdownTitle}
           </h2>
           <div className="flex justify-center gap-3 flex-wrap mt-4">
-            {[{ label: t.days, val: days }, { label: t.hours, val: hours }, { label: t.minutes, val: minutes }, { label: t.seconds, val: seconds }].map(
-              ({ label, val }) => (
-                <div key={label} className="text-white py-4 px-5 rounded min-w-[75px] text-center" style={{ background: "#5d1916" }}>
-                  <span className="text-3xl block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>{val}</span>
-                  {label}
-                </div>
-              )
-            )}
+            {[
+              { label: t.days, val: days },
+              { label: t.hours, val: hours },
+              { label: t.minutes, val: minutes },
+              { label: t.seconds, val: seconds },
+            ].map(({ label, val }) => (
+              <div
+                key={label}
+                className="text-white py-4 px-5 rounded min-w-[75px] text-center"
+                style={{ background: "#5d1916" }}
+              >
+                <span className="text-3xl block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
+                  {val}
+                </span>
+                {label}
+              </div>
+            ))}
           </div>
         </section>
 
         {/* SCHEDULE CARD */}
-<section className="py-20 px-5 text-center">
-  <h2
-    className="mb-5"
-    style={{
-      fontFamily: "'Great Vibes', cursive",
-      color: "#c5a059",
-      fontSize: "45px",
-    }}
-  >
-    {t.engagementTitle}
-  </h2>
-
-  <div className="reveal bg-white mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059]">
-    
-    <h3
-      style={{
-        fontFamily: "'Cinzel', serif",
-        color: "#c5a059",
-      }}
-    >
-      {t.engagementCeremony}
-    </h3>
-
-    <p className="my-3">{t.engagementTime}</p>
-    <p>{t.engagementVenue}</p>
-    <p className="italic text-sm mt-1">{t.venueCity}</p>
-
-    <div className="flex flex-col gap-3 mt-5 items-center">
-
-      {/* Google Maps Button */}
-      <a
-        href="https://www.google.com/maps/search/?api=1&query=Arshad+Marquee+Gulberg+Lahore+Pakistan"
-        target="_blank"
-        rel="noreferrer"
-        className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
-        style={{ background: "#5d1916" }}
-      >
-        {t.mapsBtn}
-      </a>
-      {/* Calendar Button */}
-      <a
-        href={
-          senderSide === "bride"
-            ? "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Wedding&dates=20260613T170000/20260613T210000"
-            : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Engagement&dates=20260613T170000/20260613T210000"
-        }
-        target="_blank"
-        rel="noreferrer"
-        className="border border-[#5d1916] text-[#5d1916] hover:bg-[#5d1916] hover:text-white font-cinzel transition duration-300 px-4 py-2 inline-block"
-      >
-        {t.calBtn}
-      </a>
-
-    </div>
-  </div>
-</section>
+        <section className="py-20 px-5 text-center">
+          <h2
+            className="mb-5"
+            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
+          >
+            {t.engagementTitle}
+          </h2>
+          <div className="reveal bg-white mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059]">
+            <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.engagementCeremony}</h3>
+            <p className="my-3">{t.engagementTime}</p>
+            <p>{t.engagementVenue}</p>
+            <p className="italic text-sm mt-1">{t.venueCity}</p>
+            <div className="flex flex-col gap-3 mt-5 items-center">
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Arshad+Marquee+Gulberg+Lahore+Pakistan"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
+                style={{ background: "#5d1916" }}
+              >
+                {t.mapsBtn}
+              </a>
+              <a
+                href={
+                  senderSide === "bride"
+                    ? "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Wedding&dates=20260613T170000/20260613T210000"
+                    : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Engagement&dates=20260613T170000/20260613T210000"
+                }
+                target="_blank"
+                rel="noreferrer"
+                className="border border-[#5d1916] text-[#5d1916] hover:bg-[#5d1916] hover:text-white font-cinzel transition duration-300 px-4 py-2 inline-block"
+              >
+                {t.calBtn}
+              </a>
+            </div>
+          </div>
+        </section>
 
         {/* FUNNY PROTOCOLS */}
         <section className="py-8 px-5 text-center">
-          <h3 className="font-normal" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "2.5rem" }}>
+          <h3
+            className="font-normal"
+            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "2.5rem" }}
+          >
             {t.protocolTitle}
           </h3>
           <p className="text-sm text-gray-500 mt-2 mb-6">{t.protocolSubtitle}</p>
@@ -570,8 +616,13 @@ const likeBlessing = async (id, currentLikes) => {
 
         {/* URDU TAPPA */}
         <div className="text-center my-6 py-5 px-5 bg-[#fffcfb] rounded-xl mx-4">
-          <p className="text-xl sm:text-2xl font-bold leading-loose" style={{ fontFamily: "Noto Nastaliq Urdu, serif", color: "#5d1916" }}>
-            {t.urduPoem.split('\n').map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
+          <p
+            className="text-xl sm:text-2xl font-bold leading-loose"
+            style={{ fontFamily: "Noto Nastaliq Urdu, serif", color: "#5d1916" }}
+          >
+            {t.urduPoem.split('\n').map((line, i) => (
+              <span key={i}>{line}{i === 0 && <br />}</span>
+            ))}
           </p>
           <p className="text-sm text-gray-500 italic mt-2">{t.urduPoemNote}</p>
         </div>
@@ -585,8 +636,13 @@ const likeBlessing = async (id, currentLikes) => {
             <div className="border-l-2 border-[#c5a059] pl-6 relative">
               {t.schedule.map((item, i) => (
                 <div key={i} className={`relative ${i < 2 ? "mb-8" : ""}`}>
-                  <span className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full" style={{ background: "#5d1916" }} />
-                  <h4 className="font-normal mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{item.time}</h4>
+                  <span
+                    className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full"
+                    style={{ background: "#5d1916" }}
+                  />
+                  <h4 className="font-normal mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>
+                    {item.time}
+                  </h4>
                   <p className="text-sm">{item.desc}</p>
                 </div>
               ))}
@@ -601,12 +657,16 @@ const likeBlessing = async (id, currentLikes) => {
           </h2>
           <div className="reveal flex flex-col sm:flex-row justify-center gap-8 sm:gap-10 mt-5 flex-wrap">
             <div>
-              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.groomParentsTitle}</h3>
+              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>
+                {t.groomParentsTitle}
+              </h3>
               <p>{t.groomParents}</p>
             </div>
             <div className="hidden sm:block border-l border-[#c5a059] self-center h-12" />
             <div>
-              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.brideParentsTitle}</h3>
+              <h3 className="mb-1" style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>
+                {t.brideParentsTitle}
+              </h3>
               <p>{t.brideParents}</p>
             </div>
           </div>
@@ -614,18 +674,25 @@ const likeBlessing = async (id, currentLikes) => {
 
         {/* SISTER NOTE */}
         <section className="py-10 px-5 text-center border-2 border-[#c5a059] mx-4 my-5 rounded-2xl">
-          <div className="mb-4 text-[2.5rem] font-normal" style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059" }}>
+          <div
+            className="mb-4 text-[2.5rem] font-normal"
+            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059" }}
+          >
             {t.messageLoveTitle}
           </div>
           {senderSide === "bride" ? (
             <>
               <p className="italic text-lg max-w-md mx-auto leading-relaxed">{t.brideMessage}</p>
-              <p className="mt-4 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.brideSigner}</p>
+              <p className="mt-4 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>
+                {t.brideSigner}
+              </p>
             </>
           ) : (
             <>
               <p className="italic text-lg max-w-md mx-auto leading-relaxed">{t.groomMessage}</p>
-              <p className="mt-4 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>{t.groomSigner}</p>
+              <p className="mt-4 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: "#5d1916" }}>
+                {t.groomSigner}
+              </p>
             </>
           )}
         </section>
@@ -640,8 +707,14 @@ const likeBlessing = async (id, currentLikes) => {
           <h3 className="mb-5 font-normal" style={{ fontFamily: "'Cinzel', serif" }}>{t.teamGroom}</h3>
           <div className="reveal grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto mb-10">
             {groomSiblings.map((item) => (
-              <div key={item.id} className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl">
-                <span className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3" style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}>
+              <div
+                key={item.id}
+                className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl"
+              >
+                <span
+                  className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3"
+                  style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}
+                >
                   {item.badge}
                 </span>
                 <h3 className="text-lg" style={{ fontFamily: "'Cinzel', serif" }}>{item.title}</h3>
@@ -654,8 +727,14 @@ const likeBlessing = async (id, currentLikes) => {
           <h3 className="mb-5 font-normal" style={{ fontFamily: "'Cinzel', serif" }}>{t.teamBride}</h3>
           <div className="reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-3xl mx-auto">
             {brideSiblings.map((item) => (
-              <div key={item.id} className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl">
-                <span className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3" style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}>
+              <div
+                key={item.id}
+                className="bg-white border border-[#c5a059] rounded-2xl p-5 text-center transition-shadow hover:shadow-xl"
+              >
+                <span
+                  className="inline-block px-4 py-1 rounded-full text-sm text-white mb-3"
+                  style={{ background: "#5d1916", fontFamily: "'Cinzel', serif" }}
+                >
                   {item.badge}
                 </span>
                 <h3 className="text-lg" style={{ fontFamily: "'Cinzel', serif" }}>{item.title}</h3>
@@ -665,129 +744,124 @@ const likeBlessing = async (id, currentLikes) => {
         </section>
 
         {/* BLESSING WALL */}
-<section
-  className="py-20 px-5 text-center border-t"
-  style={{ background: "#fffcfb", borderColor: "#f8ecea" }}
->
-  <h2
-    className="mb-6"
-    style={{
-      fontFamily: "'Great Vibes', cursive",
-      color: "#c5a059",
-      fontSize: "45px",
-    }}
-  >
-    {t.blessingTitle}
-  </h2>
-
-  <div
-    id="blessings-display"
-    className="max-w-lg mx-auto mb-8 max-h-72 overflow-y-auto p-3 bg-white rounded-xl border"
-    style={{ borderColor: "#f8ecea" }}
-  >
-    {!Array.isArray(blessings) || blessings.length === 0 ? (
-      <p>{t.blessingEmpty}</p>
-    ) : (
-      blessings.map((b) => (
-        <div
-          key={b.id}
-          className="blessing-entry text-left mb-4 pb-3 border-b"
-          style={{ borderColor: "#f8ecea" }}
+        <section
+          className="py-20 px-5 text-center border-t"
+          style={{ background: "#fffcfb", borderColor: "#f8ecea" }}
         >
-          <strong
-            className="block mb-1"
-            style={{
-              color: "#5d1916",
-              fontFamily: "'Cinzel', serif",
-            }}
+          <h2
+            className="mb-6"
+            style={{ fontFamily: "'Great Vibes', cursive", color: "#c5a059", fontSize: "45px" }}
           >
-            {b.name}
-          </strong>
+            {t.blessingTitle}
+          </h2>
 
-          <p>{b.message}</p>
-
-  {/* HEART REACTION */}
-          <button
-            onClick={() => likeBlessing(b.id, b.likes)}
-            className="mt-3 flex items-center gap-2 text-sm transition-transform active:scale-95"
-            style={{
-              color: "#c5a059",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
+          {/* Blessings list */}
+          <div
+            id="blessings-display"
+            className="max-w-lg mx-auto mb-8 max-h-72 overflow-y-auto p-3 bg-white rounded-xl border"
+            style={{ borderColor: "#f8ecea" }}
           >
-            {/* Show filled heart if liked, empty heart if not */}
-            {JSON.parse(localStorage.getItem("likedBlessings") || "[]").includes(b.id) ? "❤️" : "🤍"} 
-            <span>{b.likes || 0}</span>
-          </button>
-        </div>
-      ))
-    )}
-  </div>
+            {!Array.isArray(blessings) || blessings.length === 0 ? (
+              <p>{t.blessingEmpty}</p>
+            ) : (
+              blessings.map((b) => (
+                <div
+                  key={b.id}
+                  className="blessing-entry text-left mb-4 pb-3 border-b"
+                  style={{ borderColor: "#f8ecea" }}
+                >
+                  <strong
+                    className="block mb-1"
+                    style={{ color: "#5d1916", fontFamily: "'Cinzel', serif" }}
+                  >
+                    {b.name}
+                  </strong>
+                  <p>{b.message}</p>
+                  <button
+                    onClick={() => likeBlessing(b.id)}
+                    className="mt-3 flex items-center gap-2 text-sm transition-transform hover:scale-105"
+                    style={{ color: "#c5a059", background: "transparent", border: "none", cursor: "pointer" }}
+                  >
+                    <span style={{ fontSize: "20px", transition: "0.2s" }}>
+                      {likedBlessings.includes(b.id) ? "❤️" : "🤍"}
+                    </span>
+                    {b.likes_count || 0}
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
 
-  <div className="max-w-md mx-auto flex flex-col gap-3">
-    <input
-      type="text"
-      placeholder={t.namePlaceholder}
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
-      style={{
-        borderColor: "#c5a059",
-        fontFamily: "'EB Garamond', serif",
-      }}
-    />
-
-    <textarea
-      rows="3"
-      placeholder={t.messagePlaceholder}
-      value={message}
-      onChange={(e) => setMessage(e.target.value)}
-      className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
-      style={{
-        borderColor: "#c5a059",
-        fontFamily: "'EB Garamond', serif",
-      }}
-    />
-
-     <button
-      onClick={addBlessing}
-      disabled={posting}
-      className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer flex items-center justify-center gap-2"
-      style={{
-        background: "#5d1916",
-        fontFamily: "'Cinzel', serif",
-        border: "none",
-        opacity: posting ? 0.7 : 1,
-      }}
-    >
-      {posting ? (
-        <>
-          <span
-  style={{
-    width: "16px",
-    height: "16px",
-    border: "2px solid white",
-    borderTop: "2px solid transparent",
-    borderRadius: "50%",
-    display: "inline-block",
-    animation: "spin 0.8s linear infinite",
-  }}
-></span>
-          {isUrdu ? "لوڈ ہو رہا ہے..." : "Posting..."}
-        </>
-      ) : (
-        t.postBtn
-      )}
-    </button>
-  </div>
-</section>
+          {/* Login OR input form */}
+          <div className="max-w-md mx-auto flex flex-col gap-3">
+            {!user ? (
+              /* ── Not logged in: show login button only ── */
+              <button
+                onClick={handleLogin}
+                className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer"
+                style={{ background: "#5d1916", fontFamily: "'Cinzel', serif", border: "none" }}
+              >
+                {t.loginBtn}
+              </button>
+            ) : (
+              /* ── Logged in: show name, email, inputs and post button ── */
+              <>
+                <p className="text-sm text-gray-500 mb-1">
+                  {isUrdu ? "لاگ ان:" : "Logged in as"} {user.email}
+                </p>
+                <input
+                  type="text"
+                  placeholder={t.namePlaceholder}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+                  style={{ borderColor: "#c5a059", fontFamily: "'EB Garamond', serif" }}
+                />
+                <textarea
+                  rows="3"
+                  placeholder={t.messagePlaceholder}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+                  style={{ borderColor: "#c5a059", fontFamily: "'EB Garamond', serif" }}
+                />
+                <button
+                  onClick={addBlessing}
+                  disabled={posting}
+                  className="w-full py-3 rounded-lg text-white font-semibold tracking-widest transition-opacity hover:opacity-90 cursor-pointer flex items-center justify-center gap-2"
+                  style={{
+                    background: "#5d1916",
+                    fontFamily: "'Cinzel', serif",
+                    border: "none",
+                    opacity: posting ? 0.7 : 1,
+                  }}
+                >
+                  {posting ? (
+                    <>
+                      <span
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          border: "2px solid white",
+                          borderTop: "2px solid transparent",
+                          borderRadius: "50%",
+                          display: "inline-block",
+                          animation: "spin 0.8s linear infinite",
+                        }}
+                      />
+                      {isUrdu ? "لوڈ ہو رہا ہے..." : "Posting..."}
+                    </>
+                  ) : (
+                    t.postBtn
+                  )}
+                </button>
+              </>
+            )}
+          </div>
+        </section>
       </div>
     </>
   );
 };
 
 export default Invitation;
-
-
