@@ -308,7 +308,7 @@ const Invitation = () => {
     return () => window.removeEventListener("scroll", revealSections);
   }, [invitationVisible]);
 
-  // ── Open envelope ──
+  // ── Open envelope with integrated 5-Second Delayed Slow Scroll ──
   const openInvitation = () => {
     window.dispatchEvent(new Event("playGlobalMusic"));
     setEnvelopeOpening(true);
@@ -320,6 +320,12 @@ const Invitation = () => {
         setTimeout(() => {
           setShowIntro(false);
           setInvitationVisible(true);
+          
+          // ✨ NEW: Wait 5 seconds after the invitation is visible, then scroll slowly to the end
+          setTimeout(() => {
+            slowScrollToBottom();
+          }, 3000);
+
         }, 1200);
       }, 3500);
     }, 2200);
@@ -412,7 +418,32 @@ const Invitation = () => {
       nextSection.scrollIntoView({ behavior: "smooth" });
     }
   };
+// ── Smooth Continuous Slow Scroll To Page End ──
+  const slowScrollToBottom = () => {
+    const scrollSpeed = 1; // 💡 Adjust this number to change speed (e.g., 0.5 for slower, 2 for faster)
+    let animationFrameId;
 
+    const scroll = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      
+      // Stop the animation if we have reached the bottom of the page
+      if (window.scrollY >= maxScroll) {
+        cancelAnimationFrame(animationFrameId);
+        return;
+      }
+
+      window.scrollBy(0, scrollSpeed);
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    // Start the scroll animation
+    animationFrameId = requestAnimationFrame(scroll);
+
+    // Optional: Stop autoscrolling instantly if the guest manually touches/scrolls the screen
+    const stopScroll = () => cancelAnimationFrame(animationFrameId);
+    window.addEventListener("wheel", stopScroll, { once: true });
+    window.addEventListener("touchmove", stopScroll, { once: true });
+  };
   return (
     <>
       <Petals />
