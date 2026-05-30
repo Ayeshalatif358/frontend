@@ -74,9 +74,9 @@ const translations = {
   },
   ur: {
     inviteText: "ہم آپ کو محبت کی خوشی میں شامل ہونے کی دعوت دیتے ہیں",
-    heroBoth: "منگنی کی تقریب • ۱۳ جون ۲۰۲۶",
-    heroGroom: "منگنی کی تقریب • ۱۳ جون ۲۰۲۶",
-    heroBride: "بارات / نکاح • ۱۳ جون ۲۰۲۶",
+    heroBoth: "منگنی کی تقریب ۷ جون ۲۰۲۶",
+    heroGroom: "منگنی کی تقریب •  ۷ جون ۲۰۲۶",
+    heroBride: "بارات / نکاح • ۷ جون ۲۰۲۶",
     ourStoryTitle: "ہماری کہانی",
     ourStoryText: `"ایک خوبصورت سفر ایک قدم سے شروع ہوتا ہے اور اپنوں کی دعاؤں سے۔ جب دو خاندان ایک ہوتے ہیں تو ہم دوستی، محبت اور خوشیوں کے ایک نئے باب کا جشن مناتے ہیں۔"`,
     familiesTitle: "خاندانوں سے ملیں",
@@ -634,7 +634,11 @@ const Invitation = () => {
           </h2>
           <div className="reveal bg-white mx-auto max-w-sm p-8 rounded-2xl shadow-md border-t-[5px] border-t-[#c5a059]">
             <h3 style={{ fontFamily: "'Cinzel', serif", color: "#c5a059" }}>{t.engagementCeremony}</h3>
-            <p className="my-3">{t.engagementTime}</p>
+            <p className="my-3">
+  {senderSide === "bride"
+    ? (isUrdu ? "شام ۶ بجے | ۷ جون ۲۰۲۶" : "06:00 PM | June 7, 2026")
+    : t.engagementTime}
+</p>
             <p>{t.engagementVenue}</p>
             <p className="italic text-sm mt-1">{t.venueCity}</p>
             <div className="flex flex-col gap-3 mt-5 items-center">
