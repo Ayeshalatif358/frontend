@@ -27,7 +27,7 @@ const translations = {
     protocolTitle: "⚠️ Mandatory Celebration Protocols",
     protocolSubtitle: "Please read carefully to avoid dynamic structural layout errors at the venue",
     protocol1Title: "Punctuality Protocol:",
-    protocol1: `"Yes, it's a Pakistani wedding", but the buffet waits for no one. Arrive late, and you'll be left with empty platters and just the gravy. Don't say we didn't warn you!`,
+    protocol1: `"Yes, it's a Pakistani engagement", but the buffet waits for no one. Arrive late, and you'll be left with empty platters and just the gravy. Don't say we didn't warn you!`,
     protocol2Title: "Camera Policy:",
     protocol2: "Feel free to capture our best angles. If you capture an awkward chewing face during dinner, please delete it immediately for security optimization.",
     protocol3Title: "Mandatory Entry Requirement:",
