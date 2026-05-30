@@ -639,7 +639,7 @@ const Invitation = () => {
             <p className="italic text-sm mt-1">{t.venueCity}</p>
             <div className="flex flex-col gap-3 mt-5 items-center">
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Arshad+Marquee+Gulberg+Lahore+Pakistan"
+                href="https://www.google.com/maps/place/31%C2%B035'54.2%22N+74%C2%B022'07.2%22E/@31.5983775,74.3660938,597m/data=!3m2!1e3!4b1!4m4!3m3!8m2!3d31.5983775!4d74.3686687"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-block px-5 py-2 rounded text-sm text-white no-underline transition-opacity hover:opacity-90"
@@ -650,8 +650,8 @@ const Invitation = () => {
               <a
                 href={
                   senderSide === "bride"
-                    ? "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Wedding&dates=20260613T170000/20260613T210000"
-                    : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Engagement&dates=20260613T170000/20260613T210000"
+                    ? "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Wedding&dates=20260607T170000/20260607T210000"
+                    : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Iqra+%26+Usman+Engagement&dates=20260607T170000/20260607T210000"
                 }
                 target="_blank"
                 rel="noreferrer"
