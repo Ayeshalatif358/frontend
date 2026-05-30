@@ -6,9 +6,9 @@ import { supabase } from '../supabaseClient'
 const translations = {
   en: {
     inviteText: "We Invite You To Celebrate Love",
-    heroBoth: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
-    heroGroom: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
-    heroBride: "ENGAGEMENT CEREMONY • JUNE 13, 2026",
+    heroBoth: "ENGAGEMENT CEREMONY • JUNE 7, 2026",
+    heroGroom: "ENGAGEMENT CEREMONY • JUNE 7, 2026",
+    heroBride: "ENGAGEMENT CEREMONY • JUNE 7, 2026",
     ourStoryTitle: "Our Story",
     ourStoryText: `"A beautiful journey begins with a single step and the blessings of those we love. As two families become one, we celebrate the start of a lifetime of friendship, discovery, and a love that grows deeper with every passing day."`,
     familiesTitle: "Meet the Families",
@@ -22,8 +22,8 @@ const translations = {
     days: "Days", hours: "Hrs", minutes: "Min", seconds: "Sec",
     engagementTitle: "Engagement Planning",
     engagementCeremony: "Engagement Ceremony",
-    engagementTime: "05:00 PM | June 13, 2026",
-    engagementVenue: "Arshad Marquee",
+    engagementTime: "05:00 PM | June 7, 2026",
+    engagementVenue: "Musa Palace",
     protocolTitle: "⚠️ Mandatory Celebration Protocols",
     protocolSubtitle: "Please read carefully to avoid dynamic structural layout errors at the venue",
     protocol1Title: "Punctuality Protocol:",
@@ -54,7 +54,7 @@ const translations = {
     groomSigner: "— Ayesha",
     venueGroomTitle: "Engagement Ceremony",
     venueBrideTitle: "Wedding Ceremony",
-    venueTime: "05:00 PM | June 13, 2026",
+    venueTime: "05:00 PM | June 7, 2026",
     venueAddress: "Venue: [Arshad Marquee]",
     venueCity: "Lahore, Pakistan",
     mapsBtn: "📍 OPEN IN GOOGLE MAPS",
@@ -90,8 +90,8 @@ const translations = {
     days: "دن", hours: "گھنٹے", minutes: "منٹ", seconds: "سیکنڈ",
     engagementTitle: "منگنی کا پروگرام",
     engagementCeremony: "منگنی کی تقریب",
-    engagementTime: "شام ۵ بجے | ۱۳ جون ۲۰۲۶",
-    engagementVenue: "مقام: ہوٹل ...",
+    engagementTime: "شام ۵ بجے | ۷ جون ۲۰۲۶",
+    engagementVenue:"موسیٰ پیلس",
     protocolTitle: "⚠️ لازمی جشن پروٹوکول",
     protocolSubtitle: "براہ کرم غور سے پڑھیں تاکہ تقریب میں کوئی تکنیکی خرابی نہ ہو",
     protocol1Title: "وقت کی پابندی:",
@@ -122,7 +122,7 @@ const translations = {
     groomSigner: "— عائشہ",
     venueGroomTitle: "منگنی کی تقریب",
     venueBrideTitle: "شادی کی تقریب",
-    venueTime: "شام ۵ بجے | ۱۳ جون ۲۰۲۶",
+    venueTime: "شام ۵ بجے | ۷ جون ۲۰۲۶",
     venueAddress: "مقام: [گھر نمبر / علاقہ]",
     venueCity: "لاہور، پاکستان",
     mapsBtn: "📍 گوگل میپس پر دیکھیں",
@@ -275,8 +275,8 @@ const Invitation = () => {
     if (!opened && !invitationVisible) return;
     const eventDate =
       senderSide === "bride"
-        ? new Date(2026, 5, 13, 17, 30, 0).getTime()
-        : new Date(2026, 5, 13, 17, 0, 0).getTime();
+        ? new Date(2026, 5, 7, 18, 0, 0).getTime()
+        : new Date(2026, 5, 7, 17, 0, 0).getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -481,10 +481,8 @@ const Invitation = () => {
           opacity: invitationVisible ? 1 : 0,
           transition: "opacity 1.5s ease",
           ...urduStyle,
-        }}
-      >
-{/* HERO */}
-{/* HERO */}
+        }}>
+        {/* HERO */}
         <header className="mt-[60px] h-[calc(95vh-95px)] sm:h-[calc(100vh-60px)] w-full flex items-center justify-center relative bg-[#1a0a09] overflow-hidden">
           
           {/* Background Image styled exactly like your intro-image */}
@@ -840,7 +838,7 @@ const Invitation = () => {
               }}
             >
               <span style={{ display: "inline-block", animation: refreshing ? "spin 0.8s linear infinite" : "none" }}>
-                🔄
+                
               </span>
               {refreshing
                 ? (isUrdu ? "لوڈ ہو رہا ہے..." : "Loading...")
